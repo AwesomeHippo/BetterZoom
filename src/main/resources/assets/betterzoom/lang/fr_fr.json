@@ -1,0 +1,14 @@
+{
+  "betterzoom.config.title": "Configuration de BetterZoom",
+  "betterzoom.config.zoom.label": "Incrément de zoom : %s",
+  "betterzoom.config.sensitivity.label": "Sensibilité du zoom : %s",
+  "betterzoom.config.zoom.tooltip": "Valeur d'incrément du zoom par cran de la molette",
+  "betterzoom.config.sensitivity.tooltip": "Multiplicateur de sensibilité de la souris en zoom",
+  "betterzoom.config.save.tooltip": "Enregistrer les paramètres",
+  "betterzoom.config.cancel.tooltip": "Annuler les changements",
+  "betterzoom.config.hold.label": "Maintenir pour zoomer",
+  "betterzoom.config.hold.tooltip": "Garde la touche de zoom enfoncée si activé",
+  "key.categories.betterzoom": "Better Zoom",
+  "key.betterzoom.zoom": "Mode Zoom",
+  "key.betterzoom.config": "Ouvre la configuation"
+}
