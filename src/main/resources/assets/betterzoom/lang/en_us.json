@@ -1,14 +1,16 @@
 {
+  "key.categories.betterzoom": "Better Zoom",
+  "key.betterzoom.zoom": "Zoom mode",
+  "key.betterzoom.config": "Open configuation",
   "betterzoom.config.title": "BetterZoom Configuration",
   "betterzoom.config.zoom.label": "Zoom Increment: %s",
   "betterzoom.config.sensitivity.label": "Zoom Sensitivity: %s",
-  "betterzoom.config.zoom.tooltip": "How much it increments per scroll while zooming",
+  "betterzoom.config.zoom.tooltip": "Adjusts the zoom level change per mouse scroll",
   "betterzoom.config.sensitivity.tooltip": "Mouse sensitivity multiplier while zooming",
   "betterzoom.config.save.tooltip": "Save settings",
   "betterzoom.config.cancel.tooltip": "Discard changes",
   "betterzoom.config.hold.label": "Hold to Zoom",
-  "betterzoom.config.hold.tooltip": "Hold the the zoom key when enabled",
-  "key.categories.betterzoom": "Better Zoom",
-  "key.betterzoom.zoom": "Zoom mode",
-  "key.betterzoom.config": "Open configuation"
+  "betterzoom.config.hold.tooltip": "Requires holding the zoom key when enabled",
+  "betterzoom.config.smooth.label": "Smooth Mode",
+  "betterzoom.config.smooth.tooltip": "Enables smooth transitions when zooming in/out"
 }

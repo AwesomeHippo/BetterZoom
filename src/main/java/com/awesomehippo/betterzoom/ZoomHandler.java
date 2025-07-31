@@ -18,8 +18,10 @@ public class ZoomHandler {
     private static boolean isZooming = false;
     private static boolean keyPressed = false;
     private static float zoomFOV = 30.0f; // default zoom fov
-    private static float smoothFOV = mc.options.fov().get();
-    private static final float NORMAL_SENSITIVITY = mc.options.sensitivity().get().floatValue();
+    private static float smoothFOV = mc.options.fov().get().floatValue(); // starting at the player's default
+    private static float normalSensitivity = mc.options.sensitivity().get().floatValue();
+    private static float targetSensitivity = normalSensitivity;
+    private static float currentSensitivity = targetSensitivity;
 
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
@@ -30,7 +32,6 @@ public class ZoomHandler {
             if (Config.HOLD_TO_ZOOM) {
                 if (action == GLFW.GLFW_PRESS) {
                     isZooming = true;
-                    mc.options.sensitivity().set((double) (NORMAL_SENSITIVITY * Config.ZOOM_SENSITIVITY_MULTIPLIER));
                 } else if (action == GLFW.GLFW_RELEASE) {
                     resetZoom();
                 }
@@ -38,7 +39,6 @@ public class ZoomHandler {
                 if (action == GLFW.GLFW_PRESS && !keyPressed) {
                     isZooming = !isZooming;
                     keyPressed = true;
-                    mc.options.sensitivity().set((double) (isZooming ? NORMAL_SENSITIVITY * Config.ZOOM_SENSITIVITY_MULTIPLIER : NORMAL_SENSITIVITY));
                 } else if (action == GLFW.GLFW_RELEASE) {
                     keyPressed = false;
                 }
@@ -52,12 +52,36 @@ public class ZoomHandler {
 
     @SubscribeEvent
     public static void onFOVChange(ViewportEvent.ComputeFov event) {
-        float currentFOV = mc.options.fov().get();
-        if (isZooming) {
-            smoothFOV += (zoomFOV - smoothFOV) * 0.2f;
-        } else {
-            smoothFOV += (currentFOV - smoothFOV) * 0.2f;
+        float baseFOV = mc.options.fov().get().floatValue();
+        float targetFOV = isZooming ? zoomFOV : baseFOV;
+
+        float optSensitivity = mc.options.sensitivity().get().floatValue();
+        // float checking if sensitivity changed in option
+        if (Math.abs(optSensitivity - currentSensitivity) > 1e-4f) {
+            if (isZooming) {
+                normalSensitivity = optSensitivity / Config.ZOOM_SENSITIVITY_MULTIPLIER;
+            } else {
+                normalSensitivity = optSensitivity;
+            }
         }
+
+        if (isZooming && Config.HOLD_TO_ZOOM && !Keybinds.ZOOM_KEY.isDown()) {
+            resetZoom();
+        }
+        targetSensitivity = isZooming ? normalSensitivity * Config.ZOOM_SENSITIVITY_MULTIPLIER : normalSensitivity;
+
+        if (Config.ENABLE_SMOOTH_TRANSITION) {
+            // smoother transition when zooming if smooth transition enabled
+            float easingFactor = 0.15f; // should be enough
+            float eased = easingFactor * easingFactor * (3.0f - 2.0f * easingFactor); // (ease-out)
+            smoothFOV += (targetFOV - smoothFOV) * eased;
+            currentSensitivity += (targetSensitivity - currentSensitivity) * easingFactor;
+        } else {
+            smoothFOV = targetFOV;
+            currentSensitivity = targetSensitivity;
+        }
+
+        mc.options.sensitivity().set((double) currentSensitivity);
         event.setFOV(smoothFOV);
     }
 
@@ -65,9 +89,9 @@ public class ZoomHandler {
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (isZooming) {
-            float normalFOV = mc.options.fov().get().floatValue(); // would use smoothFOV but it gets modified actually
+            float normalFOV = mc.options.fov().get().floatValue();
             zoomFOV -= (float) (event.getScrollDelta() * Config.ZOOM_STEP);
-            zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // in order to prevent some strange dezooming
+            zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
             event.setCanceled(true);
         }
     }
@@ -75,7 +99,6 @@ public class ZoomHandler {
     private static void resetZoom() {
         if (isZooming) {
             isZooming = false;
-            mc.options.sensitivity().set((double) NORMAL_SENSITIVITY);
         }
     }
 

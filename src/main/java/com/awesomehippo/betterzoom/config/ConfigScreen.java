@@ -13,9 +13,10 @@ public class ConfigScreen extends Screen {
     private ZoomSlider zoomSlider;
     private SensitivitySlider sensitivitySlider;
     private Checkbox holdToZoomCheckbox;
+    private Checkbox smoothTransitionCheckbox;
 
     private static final float MIN_ZOOM_INCREMENT = 0.1f;
-    private static final float MAX_ZOOM_INCREMENT = 15.0f;
+    private static final float MAX_ZOOM_INCREMENT = 10.0f;
     private static final float MIN_SENSITIVITY = 0.01f;
     private static final float MAX_SENSITIVITY = 1.0f;
 
@@ -40,11 +41,18 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(sensitivitySlider);
 
         // hold for zooming checkbox
-        holdToZoomCheckbox = new Checkbox(centerX - 100, topY + 60, 200, 20,
+        holdToZoomCheckbox = new Checkbox(centerX - 100, topY + 60, 95, 20,
                 Component.translatable("betterzoom.config.hold.label"),
                 Config.HOLD_TO_ZOOM);
         holdToZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hold.tooltip")));
         addRenderableWidget(holdToZoomCheckbox);
+
+        // smooth transition checkbox
+        smoothTransitionCheckbox = new Checkbox(centerX + 5, topY + 60, 95, 20,
+                Component.translatable("betterzoom.config.smooth.label"),
+                Config.ENABLE_SMOOTH_TRANSITION);
+        smoothTransitionCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth.tooltip")));
+        addRenderableWidget(smoothTransitionCheckbox);
 
         //cancel
         addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), button -> {
@@ -58,6 +66,7 @@ public class ConfigScreen extends Screen {
                     Config.ZOOM_STEP = zoomSlider.getActualValue();
                     Config.ZOOM_SENSITIVITY_MULTIPLIER = sensitivitySlider.getActualValue();
                     Config.HOLD_TO_ZOOM = holdToZoomCheckbox.selected();
+                    Config.ENABLE_SMOOTH_TRANSITION = smoothTransitionCheckbox.selected();
                     Config.save();
                     minecraft.setScreen(parent);
                 }).bounds(centerX + 5, topY + 90, 95, 20)
