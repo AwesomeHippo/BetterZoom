@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.2.0 (Forge) 08/02/2025
+- Improve config system
+- Update translations
+- Improvements on config GUI
+
 ### Version 1.20.1-1.20.5 - 2.1.0 (Forge) 07/31/2025
 - Improve smooth transition when zooming, small improvements
 - Add an option to toggle smooth transition (smooth mode).

@@ -1,6 +1,6 @@
 {
   "key.categories.betterzoom": "Better Zoom",
-  "key.betterzoom.zoom": "Mode Zoom",
+  "key.betterzoom.zoom": "Zoom",
   "key.betterzoom.config": "Ouvre la configuation",
   "betterzoom.config.title": "Configuration de Better Zoom",
   "betterzoom.config.zoomstep.label": "Incrément de zoom : %s",
