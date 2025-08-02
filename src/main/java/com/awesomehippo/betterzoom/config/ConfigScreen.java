@@ -79,6 +79,7 @@ public class ConfigScreen extends Screen {
     public static class ZoomSlider extends AbstractSliderButton {
         protected final float min;
         protected final float max;
+
         public ZoomSlider(int x, int y, int width, int height, float min, float max, float currentValue) {
             super(x, y, width, height, Component.empty(), (currentValue - min) / (max - min));
             this.min = min;
