@@ -1,53 +1,24 @@
 package com.awesomehippo.betterzoom.config;
 
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.StandardOpenOption;
-import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
+import net.minecraft.network.chat.Component;
+import net.minecraftforge.common.ForgeConfigSpec;
 
 public class Config {
-    private static final Logger LOGGER = LogManager.getLogger(Config.class);
+    private static final ForgeConfigSpec.Builder BUILDER = new ForgeConfigSpec.Builder();
 
-    // default parameters
-    public static float ZOOM_STEP = 2.0f; // default incremement
-    public static float ZOOM_SENSITIVITY_MULTIPLIER = 0.3f; // default sensitivity
-    public static boolean HOLD_TO_ZOOM = true;
-    public static boolean ENABLE_SMOOTH_TRANSITION = true;
+    public static final ForgeConfigSpec.DoubleValue ZOOM_STEP;
+    public static final ForgeConfigSpec.DoubleValue ZOOM_SENSITIVITY_MULTIPLIER;
+    public static final ForgeConfigSpec.BooleanValue HOLD_TO_ZOOM;
+    public static final ForgeConfigSpec.BooleanValue ENABLE_SMOOTH_TRANSITION;
 
-    private static final Gson GSON = new Gson();
-    private static final Path CONFIG_PATH = Path.of("config/betterzoom.json");
+    static {
+        BUILDER.comment(String.valueOf(Component.translatable("betterzoom.config.title")));
 
-    public static void load() {
-        if (Files.exists(CONFIG_PATH)) {
-            try {
-                String json = Files.readString(CONFIG_PATH);
-                JsonObject obj = GSON.fromJson(json, JsonObject.class);
-
-                // not too much keys so it'll be fine to hardcode this
-                ZOOM_STEP = obj.has("zoomStep") ? obj.get("zoomStep").getAsFloat() : ZOOM_STEP;
-                ZOOM_SENSITIVITY_MULTIPLIER = obj.has("zoomSensitivity") ? obj.get("zoomSensitivity").getAsFloat() : ZOOM_SENSITIVITY_MULTIPLIER;
-                HOLD_TO_ZOOM = obj.has("holdToZoom") ? obj.get("holdToZoom").getAsBoolean() : HOLD_TO_ZOOM;
-                ENABLE_SMOOTH_TRANSITION = obj.has("smoothTransition") ? obj.get("smoothTransition").getAsBoolean() : ENABLE_SMOOTH_TRANSITION;
-            } catch (Exception e) {
-                LOGGER.error("Failed to load config file: {}", CONFIG_PATH, e);
-            }
-        }
+        ZOOM_STEP = BUILDER.translation("betterzoom.config.zoom_step").comment("The zoom increment step (higher values zoom faster when scrolling)").defineInRange("zoomStep", 2.0, 0.1, 10.0);
+        ZOOM_SENSITIVITY_MULTIPLIER = BUILDER.translation("betterzoom.config.zoom_sensitivity").comment("Mouse sensitivity multiplier while zooming (lower values make it less sensitive)").defineInRange("zoomSensitivity", 0.3, 0.01, 1.0);
+        HOLD_TO_ZOOM = BUILDER.translation("betterzoom.config.hold_to_zoom").comment("When set to true, require holding the zoom key").define("holdToZoom", true);
+        ENABLE_SMOOTH_TRANSITION = BUILDER.translation("betterzoom.config.smooth_transition").comment("Enable smooth zooming transitions (fade in/out)").define("smoothTransition", true);
     }
 
-    public static void save() {
-        try {
-            JsonObject obj = new JsonObject();
-            obj.addProperty("zoomStep", ZOOM_STEP);
-            obj.addProperty("zoomSensitivity", ZOOM_SENSITIVITY_MULTIPLIER);
-            obj.addProperty("holdToZoom", HOLD_TO_ZOOM);
-            obj.addProperty("smoothTransition", ENABLE_SMOOTH_TRANSITION);
-
-            Files.writeString(CONFIG_PATH, GSON.toJson(obj), StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
-        } catch (Exception e) {
-            LOGGER.error("Failed to save config file: {}", CONFIG_PATH, e);
-        }
-    }
+    public static final ForgeConfigSpec SPEC = BUILDER.build();
 }

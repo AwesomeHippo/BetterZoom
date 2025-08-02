@@ -1,5 +1,4 @@
 package com.awesomehippo.betterzoom.config;
-
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
@@ -8,7 +7,6 @@ import net.minecraft.network.chat.Component;
 import org.jetbrains.annotations.NotNull;
 
 public class ConfigScreen extends Screen {
-
     private final Screen parent;
     private ZoomSlider zoomSlider;
     private SensitivitySlider sensitivitySlider;
@@ -31,48 +29,39 @@ public class ConfigScreen extends Screen {
         int topY = height / 4;
 
         // zoom increment slider
-        zoomSlider = new ZoomSlider(centerX - 100, topY, 200, 20, MIN_ZOOM_INCREMENT, MAX_ZOOM_INCREMENT, Config.ZOOM_STEP);
-        zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoom.tooltip")));
+        zoomSlider = new ZoomSlider(centerX - 100, topY, 200, 20, MIN_ZOOM_INCREMENT, MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
+        zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
         addRenderableWidget(zoomSlider);
 
         // sensitivity slider
-        sensitivitySlider = new SensitivitySlider(centerX - 100, topY + 30, 200, 20, MIN_SENSITIVITY, MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER);
+        sensitivitySlider = new SensitivitySlider(centerX - 100, topY + 30, 200, 20, MIN_SENSITIVITY, MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
 
         // hold for zooming checkbox
         holdToZoomCheckbox = new Checkbox(centerX - 100, topY + 60, 95, 20,
                 Component.translatable("betterzoom.config.hold.label"),
-                Config.HOLD_TO_ZOOM);
+                Config.HOLD_TO_ZOOM.get());
         holdToZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hold.tooltip")));
         addRenderableWidget(holdToZoomCheckbox);
 
         // smooth transition checkbox
         smoothTransitionCheckbox = new Checkbox(centerX + 5, topY + 60, 95, 20,
                 Component.translatable("betterzoom.config.smooth.label"),
-                Config.ENABLE_SMOOTH_TRANSITION);
+                Config.ENABLE_SMOOTH_TRANSITION.get());
         smoothTransitionCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth.tooltip")));
         addRenderableWidget(smoothTransitionCheckbox);
 
-        //cancel
-        addRenderableWidget(Button.builder(Component.translatable("gui.cancel"), button -> {
-                    minecraft.setScreen(parent);
-                }).bounds(centerX - 100, topY + 90, 95, 20)
-                .tooltip(Tooltip.create(Component.translatable("betterzoom.config.cancel.tooltip")))
-                .build());
-
-        //save
+        // done (save)
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> {
-                    Config.ZOOM_STEP = zoomSlider.getActualValue();
-                    Config.ZOOM_SENSITIVITY_MULTIPLIER = sensitivitySlider.getActualValue();
-                    Config.HOLD_TO_ZOOM = holdToZoomCheckbox.selected();
-                    Config.ENABLE_SMOOTH_TRANSITION = smoothTransitionCheckbox.selected();
-                    Config.save();
+                    Config.ZOOM_STEP.set((double) Math.round(zoomSlider.getActualValue() * 100) / 100);
+                    Config.ZOOM_SENSITIVITY_MULTIPLIER.set((double) Math.round(sensitivitySlider.getActualValue() * 100) / 100);
+                    Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
+                    Config.ENABLE_SMOOTH_TRANSITION.set(smoothTransitionCheckbox.selected());
                     minecraft.setScreen(parent);
-                }).bounds(centerX + 5, topY + 90, 95, 20)
+                }).bounds(centerX - 100, topY + 90, 200, 20)
                 .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
                 .build());
-
     }
 
     @Override
@@ -90,7 +79,6 @@ public class ConfigScreen extends Screen {
     public static class ZoomSlider extends AbstractSliderButton {
         protected final float min;
         protected final float max;
-
         public ZoomSlider(int x, int y, int width, int height, float min, float max, float currentValue) {
             super(x, y, width, height, Component.empty(), (currentValue - min) / (max - min));
             this.min = min;
@@ -100,7 +88,7 @@ public class ConfigScreen extends Screen {
 
         @Override
         protected void updateMessage() {
-            setMessage(Component.translatable("betterzoom.config.zoom.label", String.format("%.2f", getActualValue())));
+            setMessage(Component.translatable("betterzoom.config.zoomstep.label", String.format("%.2f", getActualValue())));
         }
 
         @Override
@@ -111,11 +99,6 @@ public class ConfigScreen extends Screen {
         public float getActualValue() {
             return min + (max - min) * (float) value;
         }
-
-        /*public void setActualValue(float val) {
-            this.value = (val - min) / (max - min);
-            updateMessage();
-        }*/
     }
 
     public static class SensitivitySlider extends ZoomSlider {
