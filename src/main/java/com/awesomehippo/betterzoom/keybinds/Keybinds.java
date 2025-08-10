@@ -23,10 +23,23 @@ public class Keybinds {
             GLFW.GLFW_KEY_V,
             CATEGORY
     );
+    // keybinds to zoom/dezeoom
+    public static final KeyMapping ZOOM_IN_KEY = new KeyMapping(
+            "key.betterzoom.zoom_in",
+            GLFW.GLFW_KEY_MINUS,
+            CATEGORY
+    );
+    public static final KeyMapping ZOOM_OUT_KEY = new KeyMapping(
+            "key.betterzoom.zoom_out",
+            GLFW.GLFW_KEY_EQUAL,
+            CATEGORY
+    );
 
     @SubscribeEvent
     public static void registerKeyMappings(RegisterKeyMappingsEvent event) {
         event.register(ZOOM_KEY);
         event.register(CONFIG_KEY);
+        event.register(ZOOM_IN_KEY);
+        event.register(ZOOM_OUT_KEY);
     }
 }

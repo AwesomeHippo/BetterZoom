@@ -48,6 +48,17 @@ public class ZoomHandler {
         if (action == GLFW.GLFW_PRESS && key == Keybinds.CONFIG_KEY.getKey().getValue()) {
             mc.setScreen(new ConfigScreen(mc.screen));
         }
+
+        if (isZooming && action == GLFW.GLFW_PRESS && (Config.ZOOM_MODE.get() == Config.ZoomMode.HOTKEYS || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
+            float normalFOV = mc.options.fov().get().floatValue();
+            float step = Config.ZOOM_STEP.get().floatValue();
+
+            if (key == Keybinds.ZOOM_IN_KEY.getKey().getValue()) {
+                zoomFOV = Math.max(1.0f, zoomFOV - step);
+            } else if (key == Keybinds.ZOOM_OUT_KEY.getKey().getValue()) {
+                zoomFOV = Math.min(normalFOV, zoomFOV + step);
+            }
+        }
     }
 
     @SubscribeEvent
@@ -88,11 +99,15 @@ public class ZoomHandler {
     // mouse wheel zooming!
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
-        if (isZooming) {
+        if (isZooming && (Config.ZOOM_MODE.get() == Config.ZoomMode.WHEEL || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
             float normalFOV = mc.options.fov().get().floatValue();
             zoomFOV -= (float) (event.getScrollDelta() * Config.ZOOM_STEP.get());
             zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
-            event.setCanceled(true);
+
+            // cancel event in order to prevent the hotbar slot from changing when wheel zooming (if the config allows it)
+            if (!Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.get()) {
+                event.setCanceled(true);
+            }
         }
     }
 

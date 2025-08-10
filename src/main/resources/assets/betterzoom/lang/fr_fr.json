@@ -1,7 +1,9 @@
 {
   "key.categories.betterzoom": "Better Zoom",
   "key.betterzoom.zoom": "Zoom",
-  "key.betterzoom.config": "Ouvre la configuation",
+  "key.betterzoom.config": "Open Configuration",
+  "key.betterzoom.zoom_in": "Zoomer",
+  "key.betterzoom.zoom_out": "Dézoomer",
   "betterzoom.config.title": "Configuration de Better Zoom",
   "betterzoom.config.zoomstep.label": "Incrément de zoom : %s",
   "betterzoom.config.sensitivity.label": "Sensibilité du zoom : %s",
@@ -10,6 +12,13 @@
   "betterzoom.config.save.tooltip": "Enregistrer les paramètres",
   "betterzoom.config.hold.label": "Maintenir pour zoomer",
   "betterzoom.config.hold.tooltip": "Nécessite de maintenir la touche de zoom si activé",
-  "betterzoom.config.smooth.label": "Mode Smooth",
-  "betterzoom.config.smooth.tooltip": "Active des transitions smooth lors du zoom/dezoom"
+  "betterzoom.config.smooth.label": "Zoom Smooth",
+  "betterzoom.config.smooth.tooltip": "Active des transitions smooth lors du zoom/dezoom",
+  "betterzoom.config.zoommode.label": "Mode de Zoom",
+  "betterzoom.config.zoommode.tooltip": "Mode pour ajuster le niveau de zoom",
+  "betterzoom.config.hotbar_scroll.label": "Défilement de la barre d'inventaire pendant le zoom",
+  "betterzoom.config.hotbar_scroll.tooltip": "Autoriser le changement des emplacements de la barre d'inventaire avec la molette de la souris, pendant le zoom",
+  "betterzoom.config.zoommode.wheel": "Molette",
+  "betterzoom.config.zoommode.hotkeys": "Raccourcis",
+  "betterzoom.config.zoommode.both": "Molette/Raccourcis"
 }

@@ -1,7 +1,9 @@
 {
   "key.categories.betterzoom": "Better Zoom",
   "key.betterzoom.zoom": "Zoom",
-  "key.betterzoom.config": "Open configuation",
+  "key.betterzoom.config": "Open Configuration",
+  "key.betterzoom.zoom_in": "Zoom In",
+  "key.betterzoom.zoom_out": "Zoom Out",
   "betterzoom.config.title": "Better Zoom Configuration",
   "betterzoom.config.zoomstep.label": "Zoom Increment: %s",
   "betterzoom.config.sensitivity.label": "Mouse Sensitivity: %s",
@@ -10,6 +12,13 @@
   "betterzoom.config.save.tooltip": "Save settings",
   "betterzoom.config.hold.label": "Hold to Zoom",
   "betterzoom.config.hold.tooltip": "Requires holding the zoom key when enabled",
-  "betterzoom.config.smooth.label": "Smooth Mode",
-  "betterzoom.config.smooth.tooltip": "Enables smooth transitions when zooming in/out"
+  "betterzoom.config.smooth.label": "Smooth Zoom",
+  "betterzoom.config.smooth.tooltip": "Enables smooth transitions when zooming in/out",
+  "betterzoom.config.zoommode.label": "Zoom Mode",
+  "betterzoom.config.zoommode.tooltip": "Mode to adjust zoom level",
+  "betterzoom.config.hotbar_scroll.label": "Allow hotbar scroll while zooming",
+  "betterzoom.config.hotbar_scroll.tooltip": "Allow hotbar slots to switch with mouse wheel, while zooming",
+  "betterzoom.config.zoommode.wheel": "Wheel",
+  "betterzoom.config.zoommode.hotkeys": "Hotkeys",
+  "betterzoom.config.zoommode.both": "Wheel/Hotkeys"
 }

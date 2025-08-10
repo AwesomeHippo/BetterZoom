@@ -26,31 +26,56 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int centerX = width / 2;
+        int contentWidth = Math.min(215, width - 40);
+        int leftX = centerX - contentWidth / 2;
         int topY = height / 4;
+        int controlHeight = 20;
+        int spacing = 26;
+        int y = topY;
 
         // zoom increment slider
-        zoomSlider = new ZoomSlider(centerX - 100, topY, 200, 20, MIN_ZOOM_INCREMENT, MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
+        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, MIN_ZOOM_INCREMENT, MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
         zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
         addRenderableWidget(zoomSlider);
+        y += spacing;
 
         // sensitivity slider
-        sensitivitySlider = new SensitivitySlider(centerX - 100, topY + 30, 200, 20, MIN_SENSITIVITY, MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
+        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth, controlHeight, MIN_SENSITIVITY, MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
+        y += spacing;
 
         // hold for zooming checkbox
-        holdToZoomCheckbox = new Checkbox(centerX - 100, topY + 60, 95, 20,
+        holdToZoomCheckbox = new Checkbox(leftX, y, contentWidth / 2 - 6, controlHeight,
                 Component.translatable("betterzoom.config.hold.label"),
                 Config.HOLD_TO_ZOOM.get());
         holdToZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hold.tooltip")));
         addRenderableWidget(holdToZoomCheckbox);
 
         // smooth transition checkbox
-        smoothTransitionCheckbox = new Checkbox(centerX + 5, topY + 60, 95, 20,
+        smoothTransitionCheckbox = new Checkbox(leftX + contentWidth / 2 + 6, y, contentWidth / 2 - 6, controlHeight,
                 Component.translatable("betterzoom.config.smooth.label"),
                 Config.ENABLE_SMOOTH_TRANSITION.get());
         smoothTransitionCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth.tooltip")));
         addRenderableWidget(smoothTransitionCheckbox);
+        y += spacing;
+
+        // zoom mode (cycle button)
+        CycleButton<Config.ZoomMode> zoomModeCycle = CycleButton.builder(Config.ZoomMode::getDisplayName)
+                .withValues(Config.ZoomMode.values())
+                .withInitialValue(Config.ZOOM_MODE.get())
+                .withTooltip(value -> Tooltip.create(Component.translatable("betterzoom.config.zoommode.tooltip")))
+                .create(leftX, y, contentWidth, controlHeight, Component.translatable("betterzoom.config.zoommode.label"));
+        addRenderableWidget(zoomModeCycle);
+        y += spacing;
+
+        // allow hotbar scroll checkbox
+        Checkbox allowHotbarScrollCheckbox = new Checkbox(leftX, y, contentWidth, controlHeight,
+                Component.translatable("betterzoom.config.hotbar_scroll.label"),
+                Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.get());
+        allowHotbarScrollCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hotbar_scroll.tooltip")));
+        addRenderableWidget(allowHotbarScrollCheckbox);
+        y += spacing + 6;
 
         // done (save)
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> {
@@ -58,8 +83,10 @@ public class ConfigScreen extends Screen {
                     Config.ZOOM_SENSITIVITY_MULTIPLIER.set((double) Math.round(sensitivitySlider.getActualValue() * 100) / 100);
                     Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
                     Config.ENABLE_SMOOTH_TRANSITION.set(smoothTransitionCheckbox.selected());
+                    Config.ZOOM_MODE.set(zoomModeCycle.getValue());
+                    Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.set(allowHotbarScrollCheckbox.selected());
                     minecraft.setScreen(parent);
-                }).bounds(centerX - 100, topY + 90, 200, 20)
+                }).bounds(leftX, y, contentWidth, controlHeight)
                 .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
                 .build());
     }
