@@ -13,11 +13,6 @@ public class ConfigScreen extends Screen {
     private Checkbox holdToZoomCheckbox;
     private Checkbox smoothTransitionCheckbox;
 
-    private static final float MIN_ZOOM_INCREMENT = 0.1f;
-    private static final float MAX_ZOOM_INCREMENT = 10.0f;
-    private static final float MIN_SENSITIVITY = 0.01f;
-    private static final float MAX_SENSITIVITY = 1.0f;
-
     public ConfigScreen(Screen parent) {
         super(Component.translatable("betterzoom.config.title"));
         this.parent = parent;
@@ -34,13 +29,13 @@ public class ConfigScreen extends Screen {
         int y = topY;
 
         // zoom increment slider
-        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, MIN_ZOOM_INCREMENT, MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
+        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
         zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
         addRenderableWidget(zoomSlider);
         y += spacing;
 
         // sensitivity slider
-        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth, controlHeight, MIN_SENSITIVITY, MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
+        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth, controlHeight, Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
         y += spacing;
