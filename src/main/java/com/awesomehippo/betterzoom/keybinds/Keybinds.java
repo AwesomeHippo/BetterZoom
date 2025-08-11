@@ -26,12 +26,12 @@ public class Keybinds {
     // keybinds to zoom/dezeoom
     public static final KeyMapping ZOOM_IN_KEY = new KeyMapping(
             "key.betterzoom.zoom_in",
-            GLFW.GLFW_KEY_MINUS,
+            GLFW.GLFW_KEY_KP_SUBTRACT,
             CATEGORY
     );
     public static final KeyMapping ZOOM_OUT_KEY = new KeyMapping(
             "key.betterzoom.zoom_out",
-            GLFW.GLFW_KEY_EQUAL,
+            GLFW.GLFW_KEY_KP_ADD,
             CATEGORY
     );
 

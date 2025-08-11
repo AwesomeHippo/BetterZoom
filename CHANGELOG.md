@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.3.0 (Forge) 08/11/2025
+- Add 2 new options: "Zoom mode" and "Allow hotbar scrolling while zooming"
+- Improve and update config GUI layout
+- Update and improve translations again
+
 ### Version 1.20.1-1.20.5 - 2.2.0 (Forge) 08/02/2025
 - Improve config system
 - Update translations
