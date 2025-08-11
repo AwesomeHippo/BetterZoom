@@ -33,7 +33,7 @@ public class ZoomHandler {
                 if (action == GLFW.GLFW_PRESS) {
                     isZooming = true;
                 } else if (action == GLFW.GLFW_RELEASE) {
-                    resetZoom();
+                    resetZoom(true);
                 }
             } else {
                 if (action == GLFW.GLFW_PRESS && !keyPressed) {
@@ -77,7 +77,7 @@ public class ZoomHandler {
         }
 
         if (isZooming && Config.HOLD_TO_ZOOM.get() && !Keybinds.ZOOM_KEY.isDown()) {
-            resetZoom();
+            resetZoom(true);
         }
         targetSensitivity = isZooming ? normalSensitivity * Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue() : normalSensitivity;
 
@@ -111,21 +111,27 @@ public class ZoomHandler {
         }
     }
 
-    private static void resetZoom() {
+    private static void resetZoom(boolean keepfadeout) {
+        // fade in/out is handled in onFOVChange
         if (isZooming) {
             isZooming = false;
         }
-
-        // actually reset sensitivity and FOV values
-        float baseFOV = mc.options.fov().get().floatValue();
-        smoothFOV = baseFOV;
-        currentSensitivity = normalSensitivity;
-        mc.options.sensitivity().set((double) normalSensitivity);
+        /*
+        actually reset sensitivity and FOV values
+        it kills the fade out though. TODO: add a smooth mode between none/fade in/fade out/both?
+         */
+        if (!keepfadeout) {
+            float baseFOV = mc.options.fov().get().floatValue();
+            smoothFOV = baseFOV;
+            currentSensitivity = normalSensitivity;
+            mc.options.sensitivity().set((double) normalSensitivity);
+        }
     }
 
 
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        resetZoom();
+        // special case on logout: reset the zoom instantly
+        resetZoom(false);
     }
 }
