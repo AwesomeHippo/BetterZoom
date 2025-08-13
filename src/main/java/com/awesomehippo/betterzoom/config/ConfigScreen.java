@@ -12,6 +12,7 @@ public class ConfigScreen extends Screen {
     private SensitivitySlider sensitivitySlider;
     private Checkbox holdToZoomCheckbox;
     private Checkbox smoothTransitionCheckbox;
+    private SpecialToggleButton autoAdjustSensitivityButton;
 
     public ConfigScreen(Screen parent) {
         super(Component.translatable("betterzoom.config.title"));
@@ -23,21 +24,30 @@ public class ConfigScreen extends Screen {
         int centerX = width / 2;
         int contentWidth = Math.min(215, width - 40);
         int leftX = centerX - contentWidth / 2;
-        int topY = height / 4;
+        int topY = (height / 4) - 6;
         int controlHeight = 20;
         int spacing = 26;
         int y = topY;
 
         // zoom increment slider
-        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().floatValue());
+        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().doubleValue());
         zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
         addRenderableWidget(zoomSlider);
         y += spacing;
 
         // sensitivity slider
-        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth, controlHeight, Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
+        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth - 86, controlHeight, Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().doubleValue());
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
+
+        // auto adjust sensitivity (special toggle button)
+        autoAdjustSensitivityButton = new SpecialToggleButton(leftX + contentWidth - 80, y, 80, controlHeight, Component.translatable("betterzoom.config.autosensitivity.label"), button -> {
+            Config.AUTO_ADJUST_SENSITIVITY.set(!Config.AUTO_ADJUST_SENSITIVITY.get());
+            sensitivitySlider.active = !Config.AUTO_ADJUST_SENSITIVITY.get();
+        });
+        autoAdjustSensitivityButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.autosensitivity.tooltip")));
+        sensitivitySlider.active = !Config.AUTO_ADJUST_SENSITIVITY.get();
+        addRenderableWidget(autoAdjustSensitivityButton);
         y += spacing;
 
         // hold for zooming checkbox
@@ -74,12 +84,13 @@ public class ConfigScreen extends Screen {
 
         // done (save)
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> {
-                    Config.ZOOM_STEP.set((double) Math.round(zoomSlider.getActualValue() * 100) / 100);
-                    Config.ZOOM_SENSITIVITY_MULTIPLIER.set((double) Math.round(sensitivitySlider.getActualValue() * 100) / 100);
+                    Config.ZOOM_STEP.set(Math.round(zoomSlider.getActualValue() * 100) / 100.0);
+                    Config.ZOOM_SENSITIVITY_MULTIPLIER.set(Math.round(sensitivitySlider.getActualValue() * 100) / 100.0);
                     Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
                     Config.ENABLE_SMOOTH_TRANSITION.set(smoothTransitionCheckbox.selected());
                     Config.ZOOM_MODE.set(zoomModeCycle.getValue());
                     Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.set(allowHotbarScrollCheckbox.selected());
+                    Config.SPEC.save(); // seems to work without also - not sure if that's needed
                     minecraft.setScreen(parent);
                 }).bounds(leftX, y, contentWidth, controlHeight)
                 .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
@@ -99,10 +110,10 @@ public class ConfigScreen extends Screen {
     }
 
     public static class ZoomSlider extends AbstractSliderButton {
-        protected final float min;
-        protected final float max;
+        protected final double min;
+        protected final double max;
 
-        public ZoomSlider(int x, int y, int width, int height, float min, float max, float currentValue) {
+        public ZoomSlider(int x, int y, int width, int height, double min, double max, double currentValue) {
             super(x, y, width, height, Component.empty(), (currentValue - min) / (max - min));
             this.min = min;
             this.max = max;
@@ -119,19 +130,48 @@ public class ConfigScreen extends Screen {
             updateMessage();
         }
 
-        public float getActualValue() {
-            return min + (max - min) * (float) value;
+        public double getActualValue() {
+            return min + (max - min) * value;
         }
     }
 
     public static class SensitivitySlider extends ZoomSlider {
-        public SensitivitySlider(int x, int y, int width, int height, float min, float max, float currentValue) {
+        public SensitivitySlider(int x, int y, int width, int height, double min, double max, double currentValue) {
             super(x, y, width, height, min, max, currentValue);
         }
 
         @Override
         protected void updateMessage() {
             setMessage(Component.translatable("betterzoom.config.sensitivity.label", String.format("%.2f", getActualValue())));
+        }
+    }
+
+    public static class SpecialToggleButton extends Button {
+        public SpecialToggleButton(int x, int y, int width, int height, Component message, OnPress onPress) {
+            super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+        }
+
+        @Override
+        public void onPress() {
+            super.onPress();
+        }
+
+        @Override
+        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
+
+            // border colors for on/off
+            int borderColor = Config.AUTO_ADJUST_SENSITIVITY.get() ? 0xFF00FF00 : 0xFFFF0000;
+            int borderThickness = 1;
+
+            // top
+            guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + borderThickness, borderColor);
+            // bottom
+            guiGraphics.fill(getX(), getY() + getHeight() - borderThickness, getX() + getWidth(), getY() + getHeight(), borderColor);
+            // left
+            guiGraphics.fill(getX(), getY() + borderThickness, getX() + borderThickness, getY() + getHeight() - borderThickness, borderColor);
+            // right
+            guiGraphics.fill(getX() + getWidth() - borderThickness, getY() + borderThickness, getX() + getWidth(), getY() + getHeight() - borderThickness, borderColor);
         }
     }
 }

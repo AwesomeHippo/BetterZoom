@@ -74,12 +74,14 @@ public class ZoomHandler {
 
         float baseFOV = mc.options.fov().get().floatValue();
         float targetFOV = isZooming ? zoomFOV : baseFOV;
+        float multiplier = Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue();
+        float ratio = Config.AUTO_ADJUST_SENSITIVITY.get() ? (targetFOV / baseFOV) : 1.0f;
 
         float optSensitivity = mc.options.sensitivity().get().floatValue();
         // float checking if sensitivity changed in option
         if (Math.abs(optSensitivity - currentSensitivity) > 1e-4f) {
             if (isZooming) {
-                normalSensitivity = optSensitivity / Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue();
+                normalSensitivity = optSensitivity / (Config.AUTO_ADJUST_SENSITIVITY.get() ? ratio : multiplier);
             } else {
                 normalSensitivity = optSensitivity;
             }
@@ -88,7 +90,12 @@ public class ZoomHandler {
         if (isZooming && Config.HOLD_TO_ZOOM.get() && !Keybinds.ZOOM_KEY.isDown()) {
             resetZoom(true);
         }
-        targetSensitivity = isZooming ? normalSensitivity * Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue() : normalSensitivity;
+
+        if (isZooming) {
+            targetSensitivity = normalSensitivity * (Config.AUTO_ADJUST_SENSITIVITY.get() ? ratio : multiplier);
+        } else {
+            targetSensitivity = normalSensitivity;
+        }
 
         if (Config.ENABLE_SMOOTH_TRANSITION.get()) {
             // smoother transition when zooming if smooth transition enabled
@@ -125,6 +132,7 @@ public class ZoomHandler {
         if (isZooming) {
             isZooming = false;
         }
+
         /*
         actually reset sensitivity and FOV values
         it kills the fade out though. TODO: add a smooth mode between none/fade in/fade out/both?

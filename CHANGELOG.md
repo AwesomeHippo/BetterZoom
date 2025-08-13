@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.4.0 (Forge) 08/13/2025
+- Add an "Auto adjust" feature to automatically adjust mouse sensitivity
+- Improve more config GUI layout
+- Fix some typos and small issues
+
 ### Version 1.20.1-1.20.5 - 2.3.0 (Forge) 08/11/2025
 - Add 2 new options: "Zoom mode" and "Allow hotbar scrolling while zooming"
 - Improve and update config GUI layout
