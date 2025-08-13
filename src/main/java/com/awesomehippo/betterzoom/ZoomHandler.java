@@ -23,6 +23,11 @@ public class ZoomHandler {
     private static float targetSensitivity = normalSensitivity;
     private static float currentSensitivity = targetSensitivity;
 
+    // check ifs using any item (which sould cover vanilla spyglass and modded items)
+    private static boolean isUsingItem() {
+        return mc.player != null && mc.player.isUsingItem();
+    }
+
     @SubscribeEvent
     public static void onKeyPress(InputEvent.Key event) {
         int key = event.getKey();
@@ -63,6 +68,10 @@ public class ZoomHandler {
 
     @SubscribeEvent
     public static void onFOVChange(ViewportEvent.ComputeFov event) {
+        if (isUsingItem() && !isZooming) {
+            return;
+        }
+
         float baseFOV = mc.options.fov().get().floatValue();
         float targetFOV = isZooming ? zoomFOV : baseFOV;
 
