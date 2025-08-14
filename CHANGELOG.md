@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.4.1 (Forge) 08/14/2025
+- Prevent zooming and opening the configuration GUI when being in inventory/gui screens
+
 ### Version 1.20.1-1.20.5 - 2.4.0 (Forge) 08/13/2025
 - Add an "Auto adjust" feature to automatically adjust mouse sensitivity
 - Improve more config GUI layout

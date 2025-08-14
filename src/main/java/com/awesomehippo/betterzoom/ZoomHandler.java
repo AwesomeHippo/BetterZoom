@@ -33,7 +33,13 @@ public class ZoomHandler {
         int key = event.getKey();
         int action = event.getAction();
 
+        // zoom key (main)
         if (key == Keybinds.ZOOM_KEY.getKey().getValue()) {
+            // allow the configscreen only, so we can test the zoom
+            if (mc.screen != null && !(mc.screen instanceof ConfigScreen)) {
+                return;
+            }
+
             if (Config.HOLD_TO_ZOOM.get()) {
                 if (action == GLFW.GLFW_PRESS) {
                     isZooming = true;
@@ -50,10 +56,14 @@ public class ZoomHandler {
             }
         }
 
+        // configuration GUI
         if (action == GLFW.GLFW_PRESS && key == Keybinds.CONFIG_KEY.getKey().getValue()) {
-            mc.setScreen(new ConfigScreen(mc.screen));
+            if (mc.screen == null) {
+                 mc.setScreen(new ConfigScreen(mc.screen));
+            }
         }
 
+        // zooming with hotkeys
         if (isZooming && action == GLFW.GLFW_PRESS && (Config.ZOOM_MODE.get() == Config.ZoomMode.HOTKEYS || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
             float normalFOV = mc.options.fov().get().floatValue();
             float step = Config.ZOOM_STEP.get().floatValue();
