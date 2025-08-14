@@ -58,8 +58,10 @@ public class ZoomHandler {
 
         // configuration GUI
         if (action == GLFW.GLFW_PRESS && key == Keybinds.CONFIG_KEY.getKey().getValue()) {
-            if (mc.screen == null) {
-                 mc.setScreen(new ConfigScreen(mc.screen));
+            if (mc.screen instanceof ConfigScreen) {
+                mc.setScreen(null);
+            } else if (mc.screen == null) {
+                mc.setScreen(new ConfigScreen(null));
             }
         }
 
