@@ -1,5 +1,10 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.5.0 (Forge) 08/15/2025
+- Fix special case issue with keybinds and refactor key handling..
+- Shorten french translations
+- Small improvements overall and allow holding the zoom in/out keys
+
 ### Version 1.20.1-1.20.5 - 2.4.1 (Forge) 08/14/2025
 - Prevent zooming and opening the configuration GUI when being in inventory/gui screens
 

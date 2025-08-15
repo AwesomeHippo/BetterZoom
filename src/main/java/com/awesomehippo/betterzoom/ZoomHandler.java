@@ -8,20 +8,22 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.glfw.GLFW;
 
 @Mod.EventBusSubscriber(modid = BetterZoom.MOD_ID, bus = Mod.EventBusSubscriber.Bus.FORGE, value = Dist.CLIENT)
 public class ZoomHandler {
     private static final Minecraft mc = Minecraft.getInstance();
     private static boolean isZooming = false;
-    private static boolean keyPressed = false;
     private static float zoomFOV = 30.0f; // default zoom fov
-    private static float smoothFOV = mc.options.fov().get().floatValue(); // starting at the player's default
-    private static float normalSensitivity = mc.options.sensitivity().get().floatValue();
-    private static float targetSensitivity = normalSensitivity;
-    private static float currentSensitivity = targetSensitivity;
+    private static float smoothFOV; // starting at the player's default
+    private static float normalSensitivity;
+    private static float targetSensitivity;
+    private static float currentSensitivity;
+    private static float lastSetSensitivity;
+    private static boolean initialized = false;
+    private static boolean wasZoomKeyDown = false;
 
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
@@ -29,35 +31,38 @@ public class ZoomHandler {
     }
 
     @SubscribeEvent
-    public static void onKeyPress(InputEvent.Key event) {
-        int key = event.getKey();
-        int action = event.getAction();
+    public static void onClientTick(TickEvent.ClientTickEvent event) {
+        if (event.phase != TickEvent.Phase.END) return;
 
-        // zoom key (main)
-        if (key == Keybinds.ZOOM_KEY.getKey().getValue()) {
-            // allow the configscreen only, so we can test the zoom
-            if (mc.screen != null && !(mc.screen instanceof ConfigScreen)) {
-                return;
-            }
-
-            if (Config.HOLD_TO_ZOOM.get()) {
-                if (action == GLFW.GLFW_PRESS) {
-                    isZooming = true;
-                } else if (action == GLFW.GLFW_RELEASE) {
-                    resetZoom(true);
-                }
-            } else {
-                if (action == GLFW.GLFW_PRESS && !keyPressed) {
-                    isZooming = !isZooming;
-                    keyPressed = true;
-                } else if (action == GLFW.GLFW_RELEASE) {
-                    keyPressed = false;
-                }
-            }
+        if (!initialized && mc.options != null) {
+            smoothFOV = mc.options.fov().get().floatValue();
+            normalSensitivity = mc.options.sensitivity().get().floatValue();
+            targetSensitivity = normalSensitivity;
+            currentSensitivity = targetSensitivity;
+            lastSetSensitivity = currentSensitivity;
+            initialized = true;
         }
 
+        boolean zoomKeyDown = Keybinds.ZOOM_KEY.isDown();
+
+        if (Config.HOLD_TO_ZOOM.get()) {
+            isZooming = zoomKeyDown;
+        }
+
+        // allow the configscreen only, so we can test the zoom
+        if (mc.screen != null && !(mc.screen instanceof ConfigScreen)) {
+            return;
+        }
+
+        if (!Config.HOLD_TO_ZOOM.get()) {
+            if (zoomKeyDown && !wasZoomKeyDown) {
+                isZooming = !isZooming;
+            }
+        }
+        wasZoomKeyDown = zoomKeyDown;
+
         // configuration GUI
-        if (action == GLFW.GLFW_PRESS && key == Keybinds.CONFIG_KEY.getKey().getValue()) {
+        if (Keybinds.CONFIG_KEY.consumeClick()) {
             if (mc.screen instanceof ConfigScreen) {
                 mc.setScreen(null);
             } else if (mc.screen == null) {
@@ -66,13 +71,14 @@ public class ZoomHandler {
         }
 
         // zooming with hotkeys
-        if (isZooming && action == GLFW.GLFW_PRESS && (Config.ZOOM_MODE.get() == Config.ZoomMode.HOTKEYS || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
+        if (isZooming && (Config.ZOOM_MODE.get() == Config.ZoomMode.HOTKEYS || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
             float normalFOV = mc.options.fov().get().floatValue();
             float step = Config.ZOOM_STEP.get().floatValue();
 
-            if (key == Keybinds.ZOOM_IN_KEY.getKey().getValue()) {
+            if (Keybinds.ZOOM_IN_KEY.isDown()) {
                 zoomFOV = Math.max(1.0f, zoomFOV - step);
-            } else if (key == Keybinds.ZOOM_OUT_KEY.getKey().getValue()) {
+            }
+            if (Keybinds.ZOOM_OUT_KEY.isDown()) {
                 zoomFOV = Math.min(normalFOV, zoomFOV + step);
             }
         }
@@ -91,12 +97,8 @@ public class ZoomHandler {
 
         float optSensitivity = mc.options.sensitivity().get().floatValue();
         // float checking if sensitivity changed in option
-        if (Math.abs(optSensitivity - currentSensitivity) > 1e-4f) {
-            if (isZooming) {
-                normalSensitivity = optSensitivity / (Config.AUTO_ADJUST_SENSITIVITY.get() ? ratio : multiplier);
-            } else {
-                normalSensitivity = optSensitivity;
-            }
+        if (Math.abs(optSensitivity - lastSetSensitivity) > 1e-4f) {
+            normalSensitivity = optSensitivity;
         }
 
         if (isZooming && Config.HOLD_TO_ZOOM.get() && !Keybinds.ZOOM_KEY.isDown()) {
@@ -114,13 +116,17 @@ public class ZoomHandler {
             float easingFactor = 0.15f; // should be enough
             float eased = easingFactor * easingFactor * (3.0f - 2.0f * easingFactor); // (ease-out)
             smoothFOV += (targetFOV - smoothFOV) * eased;
-            currentSensitivity += (targetSensitivity - currentSensitivity) * easingFactor;
+            currentSensitivity += (targetSensitivity - currentSensitivity) * eased;
         } else {
             smoothFOV = targetFOV;
             currentSensitivity = targetSensitivity;
         }
 
-        mc.options.sensitivity().set((double) currentSensitivity);
+        float currentOpt = mc.options.sensitivity().get().floatValue();
+        if (Math.abs(currentSensitivity - currentOpt) > 1e-4f) {
+            mc.options.sensitivity().set((double) currentSensitivity);
+            lastSetSensitivity = currentSensitivity;
+        }
         event.setFOV(smoothFOV);
     }
 
@@ -154,9 +160,9 @@ public class ZoomHandler {
             smoothFOV = baseFOV;
             currentSensitivity = normalSensitivity;
             mc.options.sensitivity().set((double) normalSensitivity);
+            lastSetSensitivity = normalSensitivity;
         }
     }
-
 
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
