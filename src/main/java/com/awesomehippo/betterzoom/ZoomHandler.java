@@ -8,6 +8,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ClientPlayerNetworkEvent;
 import net.minecraftforge.client.event.InputEvent;
 import net.minecraftforge.client.event.ViewportEvent;
+import net.minecraftforge.event.GameShuttingDownEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -24,16 +25,9 @@ public class ZoomHandler {
     private static float lastSetSensitivity;
     private static boolean initialized = false;
     private static boolean wasZoomKeyDown = false;
-
-    // shutdown hook in order to restore correctly the sensitivity (tricky)
-    static {
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            if (mc.options != null && normalSensitivity > 0) {
-                mc.options.sensitivity().set((double) normalSensitivity);
-                mc.options.save();
-            }
-        }));
-    }
+    private static boolean isUnzoomTransition = false;
+    private static boolean prevIsZooming = false;
+    private static float lastBaseFOV;
 
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
@@ -50,6 +44,7 @@ public class ZoomHandler {
             targetSensitivity = normalSensitivity;
             currentSensitivity = targetSensitivity;
             lastSetSensitivity = currentSensitivity;
+            lastBaseFOV = smoothFOV;
             initialized = true;
         }
 
@@ -91,6 +86,12 @@ public class ZoomHandler {
                 zoomFOV = Math.min(normalFOV, zoomFOV + step);
             }
         }
+
+        // unzoom start...
+        if (prevIsZooming && !isZooming && Config.ENABLE_SMOOTH_TRANSITION.get()) {
+            isUnzoomTransition = true;
+        }
+        prevIsZooming = isZooming;
     }
 
     @SubscribeEvent
@@ -99,22 +100,38 @@ public class ZoomHandler {
             return;
         }
 
-        float baseFOV = mc.options.fov().get().floatValue();
+        // use the exact same fov
+        float baseFOV = (float) event.getFOV();
+        if (!isZooming && !isUnzoomTransition) {
+            smoothFOV = baseFOV;
+            currentSensitivity = normalSensitivity;
+            if (Math.abs(currentSensitivity - mc.options.sensitivity().get().floatValue()) > 1e-4f) {
+                mc.options.sensitivity().set((double) currentSensitivity);
+                lastSetSensitivity = currentSensitivity;
+            }
+            event.setFOV(baseFOV);
+            lastBaseFOV = baseFOV;
+
+            return;
+        }
+
+        float delta = baseFOV - lastBaseFOV;
+        if (!isZooming) {
+            smoothFOV += delta;
+        }
+        lastBaseFOV = baseFOV;
+
         float targetFOV = isZooming ? zoomFOV : baseFOV;
         float multiplier = Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue();
-        float ratio = Config.AUTO_ADJUST_SENSITIVITY.get() ? (targetFOV / baseFOV) : 1.0f;
-
         float optSensitivity = mc.options.sensitivity().get().floatValue();
         // float checking if sensitivity changed in option
         if (Math.abs(optSensitivity - lastSetSensitivity) > 1e-4f) {
             normalSensitivity = optSensitivity;
         }
 
-        if (isZooming && Config.HOLD_TO_ZOOM.get() && !Keybinds.ZOOM_KEY.isDown()) {
-            resetZoom(true);
-        }
-
         if (isZooming) {
+            float normalFOV = mc.options.fov().get().floatValue();
+            float ratio = Config.AUTO_ADJUST_SENSITIVITY.get() ? (targetFOV / normalFOV) : 1.0f;
             targetSensitivity = normalSensitivity * (Config.AUTO_ADJUST_SENSITIVITY.get() ? ratio : multiplier);
         } else {
             targetSensitivity = normalSensitivity;
@@ -137,6 +154,11 @@ public class ZoomHandler {
             lastSetSensitivity = currentSensitivity;
         }
         event.setFOV(smoothFOV);
+
+        //  checking if unzoom transition is complete
+        if (!isZooming && isUnzoomTransition && Math.abs(smoothFOV - baseFOV) < 0.1f && Math.abs(currentSensitivity - normalSensitivity) < 1e-4f) {
+            isUnzoomTransition = false;
+        }
     }
 
     // mouse wheel zooming!
@@ -154,22 +176,17 @@ public class ZoomHandler {
         }
     }
 
-    private static void resetZoom(boolean keepfadeout) {
-        // fade in/out is handled in onFOVChange
-        if (isZooming) {
-            isZooming = false;
-        }
-
-        /*
-        actually reset sensitivity and FOV values
-        it kills the fade out though. TODO: add a smooth mode between none/fade in/fade out/both?
-         */
-        if (!keepfadeout) {
-            float baseFOV = mc.options.fov().get().floatValue();
-            smoothFOV = baseFOV;
-            currentSensitivity = normalSensitivity;
-            mc.options.sensitivity().set((double) normalSensitivity);
-            lastSetSensitivity = normalSensitivity;
-        }
+    // restore correctly sensitivity
+    @SubscribeEvent
+    public static void onGameShuttingDown(GameShuttingDownEvent event) {
+        mc.options.sensitivity().set((double) normalSensitivity);
+        mc.options.save();
+    }
+    @SubscribeEvent
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        mc.options.sensitivity().set((double) normalSensitivity);
+        mc.options.save();
+        isZooming = false;
+        isUnzoomTransition = false;
     }
 }
