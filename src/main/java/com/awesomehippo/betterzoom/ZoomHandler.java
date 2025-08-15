@@ -25,6 +25,16 @@ public class ZoomHandler {
     private static boolean initialized = false;
     private static boolean wasZoomKeyDown = false;
 
+    // shutdown hook in order to restore correctly the sensitivity (tricky)
+    static {
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            if (mc.options != null && normalSensitivity > 0) {
+                mc.options.sensitivity().set((double) normalSensitivity);
+                mc.options.save();
+            }
+        }));
+    }
+
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
         return mc.player != null && mc.player.isUsingItem();
@@ -44,7 +54,6 @@ public class ZoomHandler {
         }
 
         boolean zoomKeyDown = Keybinds.ZOOM_KEY.isDown();
-
         if (Config.HOLD_TO_ZOOM.get()) {
             isZooming = zoomKeyDown;
         }
@@ -162,11 +171,5 @@ public class ZoomHandler {
             mc.options.sensitivity().set((double) normalSensitivity);
             lastSetSensitivity = normalSensitivity;
         }
-    }
-
-    @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        // special case on logout: reset the zoom instantly
-        resetZoom(false);
     }
 }
