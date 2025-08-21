@@ -7,7 +7,7 @@
   "betterzoom.config.title": "Better Zoom Configuration",
   "betterzoom.config.zoomstep.label": "Zoom Increment: %s",
   "betterzoom.config.sensitivity.label": "Mouse Sensitivity: %s",
-  "betterzoom.config.zoomstep.tooltip": "Zoom increment per scroll step",
+  "betterzoom.config.zoomstep.tooltip": "Zoom increment per zoom in/out",
   "betterzoom.config.sensitivity.tooltip": "Mouse sensitivity multiplier while zooming",
   "betterzoom.config.save.tooltip": "Save settings",
   "betterzoom.config.hold.label": "Hold to Zoom",
@@ -16,11 +16,13 @@
   "betterzoom.config.smooth.tooltip": "Enables smooth transitions when zooming in/out",
   "betterzoom.config.zoommode.label": "Zoom Mode",
   "betterzoom.config.zoommode.tooltip": "Mode to adjust zoom level",
-  "betterzoom.config.hotbar_scroll.label": "Allow hotbar scroll while zooming",
-  "betterzoom.config.hotbar_scroll.tooltip": "Allow hotbar slots to switch with mouse wheel, while zooming",
   "betterzoom.config.autosensitivity.label": "Auto Adjust",
   "betterzoom.config.autosensitivity.tooltip": "Adjusts mouse sensitivity based on the zoom level",
   "betterzoom.config.zoommode.wheel": "Wheel",
   "betterzoom.config.zoommode.hotkeys": "Hotkeys",
-  "betterzoom.config.zoommode.both": "Wheel/Hotkeys"
+  "betterzoom.config.zoommode.both": "Wheel/Hotkeys",
+  "betterzoom.config.smooth_easing.label": "Easing Factor: %s",
+  "betterzoom.config.smooth_easing.tooltip": "Easing factor for zoom transitions (higher = faster/less smooth, lower = slower/more smooth)\").",
+  "betterzoom.config.disablebobbing.label": "Disable Bobbing while zooming",
+  "betterzoom.config.disablebobbing.tooltip": "Disables bob view while zooming to prevent visual wobble"
 }

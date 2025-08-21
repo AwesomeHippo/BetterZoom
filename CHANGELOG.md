@@ -1,5 +1,14 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.6.0 (Forge) 08/21/2025
+- Completely update and improve the Config screen
+- Remove "allow hotbar scrolling" option
+- Add smooth easing factor option
+- Add "disable bobbing" option
+- Fix issues with very low base FOV
+- Update translations
+- Improvements overall
+
 ### Version 1.20.1-1.20.5 - 2.5.0 (Forge) 08/15/2025
 - Fix special case issue with keybinds and refactor key handling..
 - Shorten french translations

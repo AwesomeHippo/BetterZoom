@@ -1,4 +1,7 @@
 package com.awesomehippo.betterzoom.config;
+
+import com.awesomehippo.betterzoom.keybinds.Keybinds;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.*;
@@ -8,11 +11,13 @@ import org.jetbrains.annotations.NotNull;
 
 public class ConfigScreen extends Screen {
     private final Screen parent;
-    private ZoomSlider zoomSlider;
+    private ZoomSlider zoomIncrementSlider;
     private SensitivitySlider sensitivitySlider;
+    private EasingFactorSlider easingFactorSlider;
     private Checkbox holdToZoomCheckbox;
-    private Checkbox smoothTransitionCheckbox;
-    private SpecialToggleButton autoAdjustSensitivityButton;
+    private Checkbox smoothZoomCheckbox;
+    private Checkbox autoAdjustSensitivityCheckbox;
+    private Checkbox disableBobbingCheckbox;
 
     public ConfigScreen(Screen parent) {
         super(Component.translatable("betterzoom.config.title"));
@@ -22,75 +27,97 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int centerX = width / 2;
-        int contentWidth = Math.min(215, width - 40);
+        int contentWidth = Math.min(250, width - 40);
         int leftX = centerX - contentWidth / 2;
         int topY = (height / 4) - 6;
         int controlHeight = 20;
         int spacing = 26;
+        int gap = 6;
         int y = topY;
 
-        // zoom increment slider
-        zoomSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight, Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().doubleValue());
-        zoomSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
-        addRenderableWidget(zoomSlider);
+        int leftWidth = (contentWidth - gap) * 2 / 3;
+        int rightWidth = contentWidth - gap - leftWidth;
+
+        // row 1: zoom increment step slider
+        zoomIncrementSlider = new ZoomSlider(leftX, y, contentWidth, controlHeight,
+                Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get().doubleValue());
+        zoomIncrementSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
+        addRenderableWidget(zoomIncrementSlider);
         y += spacing;
 
-        // sensitivity slider
-        sensitivitySlider = new SensitivitySlider(leftX, y, contentWidth - 86, controlHeight, Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().doubleValue());
+        // row 2: sensitivity & auto adjust checkbox
+        sensitivitySlider = new SensitivitySlider(leftX, y, leftWidth, controlHeight,
+                Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().doubleValue());
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
 
-        // auto adjust sensitivity (special toggle button)
-        autoAdjustSensitivityButton = new SpecialToggleButton(leftX + contentWidth - 80, y, 80, controlHeight, Component.translatable("betterzoom.config.autosensitivity.label"), button -> {
-            Config.AUTO_ADJUST_SENSITIVITY.set(!Config.AUTO_ADJUST_SENSITIVITY.get());
-            sensitivitySlider.active = !Config.AUTO_ADJUST_SENSITIVITY.get();
-        });
-        autoAdjustSensitivityButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.autosensitivity.tooltip")));
+        autoAdjustSensitivityCheckbox = new Checkbox(leftX + leftWidth + gap, y, rightWidth, controlHeight,
+                Component.translatable("betterzoom.config.autosensitivity.label"),
+                Config.AUTO_ADJUST_SENSITIVITY.get()) {
+            @Override
+            public void onPress() {
+                super.onPress();
+                sensitivitySlider.active = !this.selected();
+            }
+        };
+        autoAdjustSensitivityCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.autosensitivity.tooltip")));
         sensitivitySlider.active = !Config.AUTO_ADJUST_SENSITIVITY.get();
-        addRenderableWidget(autoAdjustSensitivityButton);
+        addRenderableWidget(autoAdjustSensitivityCheckbox);
         y += spacing;
 
-        // hold for zooming checkbox
-        holdToZoomCheckbox = new Checkbox(leftX, y, contentWidth / 2 - 6, controlHeight,
+        // row 3: easing factor & smooth transition checkbox
+        easingFactorSlider = new EasingFactorSlider(leftX, y, leftWidth, controlHeight, Config.MIN_SMOOTH_EASE, Config.MAX_SMOOTH_EASE,
+                Config.SMOOTH_EASING_FACTOR.get().doubleValue());
+        easingFactorSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth_easing.tooltip")));
+        addRenderableWidget(easingFactorSlider);
+
+        smoothZoomCheckbox = new Checkbox(leftX + leftWidth + gap, y, rightWidth, controlHeight,
+                Component.translatable("betterzoom.config.smooth.label"),
+                Config.SMOOTH_ZOOM.get()) {
+            @Override
+            public void onPress() {
+                super.onPress();
+                easingFactorSlider.active = this.selected();
+            }
+        };
+        smoothZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth.tooltip")));
+        easingFactorSlider.active = Config.SMOOTH_ZOOM.get();
+        addRenderableWidget(smoothZoomCheckbox);
+        y += spacing;
+
+        // row 4: hold to zoom & zoom mode checkbox
+        holdToZoomCheckbox = new Checkbox(leftX + leftWidth + gap, y, rightWidth, controlHeight,
                 Component.translatable("betterzoom.config.hold.label"),
                 Config.HOLD_TO_ZOOM.get());
         holdToZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hold.tooltip")));
         addRenderableWidget(holdToZoomCheckbox);
 
-        // smooth transition checkbox
-        smoothTransitionCheckbox = new Checkbox(leftX + contentWidth / 2 + 6, y, contentWidth / 2 - 6, controlHeight,
-                Component.translatable("betterzoom.config.smooth.label"),
-                Config.ENABLE_SMOOTH_TRANSITION.get());
-        smoothTransitionCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth.tooltip")));
-        addRenderableWidget(smoothTransitionCheckbox);
-        y += spacing;
-
-        // zoom mode (cycle button)
         CycleButton<Config.ZoomMode> zoomModeCycle = CycleButton.builder(Config.ZoomMode::getDisplayName)
                 .withValues(Config.ZoomMode.values())
                 .withInitialValue(Config.ZOOM_MODE.get())
                 .withTooltip(value -> Tooltip.create(Component.translatable("betterzoom.config.zoommode.tooltip")))
-                .create(leftX, y, contentWidth, controlHeight, Component.translatable("betterzoom.config.zoommode.label"));
+                .create(leftX, y, leftWidth, controlHeight, Component.translatable("betterzoom.config.zoommode.label"));
         addRenderableWidget(zoomModeCycle);
         y += spacing;
 
-        // allow hotbar scroll checkbox
-        Checkbox allowHotbarScrollCheckbox = new Checkbox(leftX, y, contentWidth, controlHeight,
-                Component.translatable("betterzoom.config.hotbar_scroll.label"),
-                Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.get());
-        allowHotbarScrollCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hotbar_scroll.tooltip")));
-        addRenderableWidget(allowHotbarScrollCheckbox);
-        y += spacing + 6;
+        // row 5: disable bobbing while zooming checkbox
+        disableBobbingCheckbox = new Checkbox(leftX, y, contentWidth, controlHeight,
+                Component.translatable("betterzoom.config.disablebobbing.label"),
+                Config.DISABLE_BOBBING_WHILE_ZOOMING.get());
+        disableBobbingCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.disablebobbing.tooltip")));
+        addRenderableWidget(disableBobbingCheckbox);
+        y += spacing + 12;
 
         // done (save)
         addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> {
-                    Config.ZOOM_STEP.set(Math.round(zoomSlider.getActualValue() * 100) / 100.0);
+                    Config.ZOOM_STEP.set(Math.round(zoomIncrementSlider.getActualValue() * 100) / 100.0);
                     Config.ZOOM_SENSITIVITY_MULTIPLIER.set(Math.round(sensitivitySlider.getActualValue() * 100) / 100.0);
+                    Config.AUTO_ADJUST_SENSITIVITY.set(autoAdjustSensitivityCheckbox.selected());
                     Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
-                    Config.ENABLE_SMOOTH_TRANSITION.set(smoothTransitionCheckbox.selected());
+                    Config.SMOOTH_ZOOM.set(smoothZoomCheckbox.selected());
                     Config.ZOOM_MODE.set(zoomModeCycle.getValue());
-                    Config.ALLOW_HOTBAR_SCROLL_WHILE_ZOOMING.set(allowHotbarScrollCheckbox.selected());
-                    Config.SPEC.save(); // seems to work without also - not sure if that's needed
+                    Config.SMOOTH_EASING_FACTOR.set(Math.round(easingFactorSlider.getActualValue() * 100) / 100.0);
+                    Config.DISABLE_BOBBING_WHILE_ZOOMING.set(disableBobbingCheckbox.selected());
                     minecraft.setScreen(parent);
                 }).bounds(leftX, y, contentWidth, controlHeight)
                 .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
@@ -107,6 +134,24 @@ public class ConfigScreen extends Screen {
     @Override
     public void onClose() {
         Minecraft.getInstance().setScreen(parent);
+    }
+
+    @Override
+    public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
+        if (Keybinds.CONFIG_KEY.isActiveAndMatches(InputConstants.getKey(keyCode, scanCode))) {
+            this.onClose();
+            return true;
+        }
+        return super.keyPressed(keyCode, scanCode, modifiers);
+    }
+
+    @Override
+    public boolean mouseClicked(double mouseX, double mouseY, int button) {
+        if (Keybinds.CONFIG_KEY.isActiveAndMatches(InputConstants.Type.MOUSE.getOrCreate(button))) {
+            this.onClose();
+            return true;
+        }
+        return super.mouseClicked(mouseX, mouseY, button);
     }
 
     public static class ZoomSlider extends AbstractSliderButton {
@@ -146,32 +191,14 @@ public class ConfigScreen extends Screen {
         }
     }
 
-    public static class SpecialToggleButton extends Button {
-        public SpecialToggleButton(int x, int y, int width, int height, Component message, OnPress onPress) {
-            super(x, y, width, height, message, onPress, DEFAULT_NARRATION);
+    public static class EasingFactorSlider extends ZoomSlider {
+        public EasingFactorSlider(int x, int y, int width, int height, double min, double max, double currentValue) {
+            super(x, y, width, height, min, max, currentValue);
         }
 
         @Override
-        public void onPress() {
-            super.onPress();
-        }
-
-        @Override
-        public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
-            super.renderWidget(guiGraphics, mouseX, mouseY, partialTick);
-
-            // border colors for on/off
-            int borderColor = Config.AUTO_ADJUST_SENSITIVITY.get() ? 0xFF00FF00 : 0xFFFF0000;
-            int borderThickness = 1;
-
-            // top
-            guiGraphics.fill(getX(), getY(), getX() + getWidth(), getY() + borderThickness, borderColor);
-            // bottom
-            guiGraphics.fill(getX(), getY() + getHeight() - borderThickness, getX() + getWidth(), getY() + getHeight(), borderColor);
-            // left
-            guiGraphics.fill(getX(), getY() + borderThickness, getX() + borderThickness, getY() + getHeight() - borderThickness, borderColor);
-            // right
-            guiGraphics.fill(getX() + getWidth() - borderThickness, getY() + borderThickness, getX() + getWidth(), getY() + getHeight() - borderThickness, borderColor);
+        protected void updateMessage() {
+            setMessage(Component.translatable("betterzoom.config.smooth_easing.label", String.format("%.2f", getActualValue())));
         }
     }
 }

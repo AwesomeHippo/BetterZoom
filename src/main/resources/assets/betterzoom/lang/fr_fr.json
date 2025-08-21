@@ -7,7 +7,7 @@
   "betterzoom.config.title": "Configuration de Better Zoom",
   "betterzoom.config.zoomstep.label": "Incrément de zoom : %s",
   "betterzoom.config.sensitivity.label": "Sensibilité de la souris : %s",
-  "betterzoom.config.zoomstep.tooltip": "Ajuste le changement de zoom par cran de molette",
+  "betterzoom.config.zoomstep.tooltip": "Increment de zoom par zoom avant/arrière",
   "betterzoom.config.sensitivity.tooltip": "Multiplicateur de sensibilité de la souris en zoom",
   "betterzoom.config.save.tooltip": "Enregistrer les paramètres",
   "betterzoom.config.hold.label": "Maintenir pour zoom",
@@ -16,11 +16,13 @@
   "betterzoom.config.smooth.tooltip": "Active des transitions smooth lors du zoom/dezoom",
   "betterzoom.config.zoommode.label": "Mode de Zoom",
   "betterzoom.config.zoommode.tooltip": "Mode pour ajuster le niveau de zoom",
-  "betterzoom.config.hotbar_scroll.label": "Autorise le défilement d'inventaire pendant le zoom",
-  "betterzoom.config.hotbar_scroll.tooltip": "Autoriser le changement des emplacements de la barre d'inventaire avec la molette de la souris, pendant le zoom",
   "betterzoom.config.autosensitivity.label": "Auto Ajustement",
   "betterzoom.config.autosensitivity.tooltip": "Ajuste la sensibilité de la souris en fonction du niveau de zoom",
   "betterzoom.config.zoommode.wheel": "Molette",
   "betterzoom.config.zoommode.hotkeys": "Raccourcis",
-  "betterzoom.config.zoommode.both": "Molette/Raccourcis"
+  "betterzoom.config.zoommode.both": "Molette/Raccourcis",
+  "betterzoom.config.smooth_easing.label": "Easing Factor: %s",
+  "betterzoom.config.smooth_easing.tooltip": "Controls the speed of smooth zoom transitions (higher is faster).",
+  "betterzoom.config.disablebobbing.label": "Désactive les mouvements de tête lors du zoom",
+  "betterzoom.config.disablebobbing.tooltip": "Désactive les mouvements flottants pendant le zoom pour éviter les tremblements visuels"
 }
