@@ -20,12 +20,12 @@ public class ZoomHandler {
     private static float zoomFOV = 30.0f; // default zoom fov
     private static float smoothedZoomFactor = 1f; // smooth zoom level (1 is no zoom by default)
     private static float normalSensitivity;
-    private static float currentSensitivity;
     private static boolean normalBobView;
     private static boolean initialized = false;
     private static boolean wasZoomKeyDown = false;
     private static boolean isUnzoomTransition = false;
     private static boolean prevIsZooming = false;
+    private static boolean sensitivityModified = false; // track if we modified the original sensitivity
 
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
@@ -34,15 +34,28 @@ public class ZoomHandler {
 
     @SubscribeEvent
     public static void onClientTick(ClientTickEvent.Post event) {
-
         if (!initialized && mc.options != null) {
             normalSensitivity = mc.options.sensitivity().get().floatValue();
-            currentSensitivity = normalSensitivity;
             normalBobView = mc.options.bobView().get();
             initialized = true;
         }
 
-        if (mc.screen == null && Keybinds.CONFIG_KEY.consumeClick()) {
+        // refresh the options correctly
+        if (!isZooming && !isUnzoomTransition && mc.options != null) {
+            float actual = mc.options.sensitivity().get().floatValue();
+            if (Math.abs(actual - normalSensitivity) > 1e-6f) {
+                normalSensitivity = actual;
+                sensitivityModified = false;
+            }
+            boolean actualBob = mc.options.bobView().get();
+            if (actualBob != normalBobView) {
+                normalBobView = actualBob;
+            }
+        }
+
+        if (mc.screen != null) return;
+
+        if (Keybinds.CONFIG_KEY.consumeClick()) {
             mc.setScreen(new ConfigScreen(null));
         }
 
@@ -114,26 +127,25 @@ public class ZoomHandler {
         }
 
         // set target mouse sensitivity for zoom
-        float targetSensitivity= normalSensitivity;
         if (isZooming) {
-            targetSensitivity *= Config.AUTO_ADJUST_SENSITIVITY.get() ? smoothedZoomFactor : Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue();
-        }
-
-        if (Config.SMOOTH_ZOOM.get()) {
-            // not really necessary except if it's zooming while moving mouse a lot
-            float easing = Config.SMOOTH_EASING_FACTOR.get().floatValue();
-            float easedAmount = easing * easing * (3f - 2f * easing);
-            currentSensitivity += (targetSensitivity - currentSensitivity) * easedAmount;
-        } else {
-            currentSensitivity = targetSensitivity;
-        }
-
-        if (Math.abs(currentSensitivity - mc.options.sensitivity().get().floatValue()) > 1e-4f) {
-            mc.options.sensitivity().set((double) currentSensitivity);
+            float targetSensitivity = normalSensitivity * (Config.AUTO_ADJUST_SENSITIVITY.get() ? smoothedZoomFactor : Config.ZOOM_SENSITIVITY_MULTIPLIER.get().floatValue());
+            // check if it's different
+            if (Math.abs(mc.options.sensitivity().get().floatValue() - targetSensitivity) > 1e-6f) {
+                mc.options.sensitivity().set((double) targetSensitivity);
+                sensitivityModified = true;
+            } else {
+                // already good
+                sensitivityModified = sensitivityModified;
+            }
+        } else if (sensitivityModified) {
+            if (Math.abs(mc.options.sensitivity().get().floatValue() - normalSensitivity) > 1e-6f) {
+                mc.options.sensitivity().set((double) normalSensitivity);
+            }
+            sensitivityModified = false;
         }
 
         // checking if unzoom transition is complete
-        if (!isZooming && isUnzoomTransition && Math.abs(smoothedZoomFactor - 1f) < 1e-3f && Math.abs(currentSensitivity - normalSensitivity) < 1e-4f) {
+        if (!isZooming && isUnzoomTransition && Math.abs(smoothedZoomFactor - 1f) < 1e-3f) {
             isUnzoomTransition = false;
         }
     }
@@ -145,7 +157,6 @@ public class ZoomHandler {
             float normalFOV = mc.options.fov().get().floatValue();
             zoomFOV -= (float) (event.getScrollDeltaY() * Config.ZOOM_STEP.get());
             zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
-
             // cancel event in order to prevent the hotbar slot from changing when wheel zooming
             event.setCanceled(true);
         }
@@ -154,16 +165,27 @@ public class ZoomHandler {
     // restore correctly the changed stuff
     @SubscribeEvent
     public static void onGameShuttingDown(GameShuttingDownEvent event) {
-        mc.options.sensitivity().set((double) normalSensitivity);
-        mc.options.bobView().set(normalBobView);
-        mc.options.save();
-    }
-    @SubscribeEvent
-    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        mc.options.sensitivity().set((double) normalSensitivity);
-        mc.options.bobView().set(normalBobView);
-        mc.options.save();
+        restoreModifiedOptions();
         isZooming = false;
         isUnzoomTransition = false;
+    }
+
+    @SubscribeEvent
+    public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
+        restoreModifiedOptions();
+        isZooming = false;
+        isUnzoomTransition = false;
+    }
+
+    // restore the actually modified options by us
+    private static void restoreModifiedOptions() {
+        if (sensitivityModified || Math.abs(mc.options.sensitivity().get() - normalSensitivity) > 1e-6f) {
+            mc.options.sensitivity().set((double) normalSensitivity);
+        }
+        if (mc.options.bobView().get() != normalBobView) {
+            mc.options.bobView().set(normalBobView);
+        }
+        mc.options.save();
+        sensitivityModified = false;
     }
 }

@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.20.1-1.20.5 - 2.7.0 (NeoForge) 09/03/2025
+- Hotfix settings not restoring properly and small improvements
+
 ### Version 1.20.1-1.20.5 - 2.6.0 (NeoForge) 08/30/2025
 - Port forge 1.20.1 (v2.6.0) to NeoForge
 
