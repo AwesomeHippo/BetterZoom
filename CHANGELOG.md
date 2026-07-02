@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.21.1 - 2.7.1 (NeoForge) 07/02/2026
+- Fix crash when running the mod server-sided
+
 ### Version 1.20.1-1.20.5 - 2.7.0 (NeoForge) 09/03/2025
 - Hotfix settings not restoring properly and small improvements
 
