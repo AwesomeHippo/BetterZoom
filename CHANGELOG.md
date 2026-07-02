@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.20.1-1.20.4 - 2.7.1 (Forge) 07/02/2026
+- Small check that we're running the mod on the client, update to the latest mods.toml & add logo.png
+
 ### Version 1.20.1-1.20.4 - 2.7.0 (Forge) 09/03/2025
 - Fix typo and hotfix sensitivity / bobbing options not resetting correctly
 
