@@ -2,12 +2,13 @@ package com.awesomehippo.betterzoom;
 
 import com.awesomehippo.betterzoom.config.Config;
 import com.awesomehippo.betterzoom.config.ConfigScreen;
+import net.neoforged.api.distmarker.Dist;
 import net.neoforged.fml.ModLoadingContext;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.neoforge.client.gui.IConfigScreenFactory;
 
-@Mod(BetterZoom.MOD_ID)
+@Mod(value = BetterZoom.MOD_ID, dist = Dist.CLIENT)
 public class BetterZoom {
     public static final String MOD_ID = "betterzoom";
 
