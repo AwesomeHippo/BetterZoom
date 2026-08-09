@@ -1,5 +1,17 @@
 # Changelog
 
+### Version 1.21.1 - 2.8.0 (NeoForge) 09/08/2026
+- Add the "Cinematic Camera while zooming" option
+- Fix an issue with the bobbing option
+- More robust restoring of the settings overall
+- Improve smooth zoom (more consistent across FPS!)
+- Config now saves when pressing escape in the menu
+- Move the config GUI a bit higher
+- Update EN and FR translations
+- Bump neoforge version to 21.1.248 (previously 21.1.200)
+- Some code refactoring
+- And many small improvements!
+
 ### Version 1.21.1 - 2.7.1 (NeoForge) 07/02/2026
 - Fix crash when running the mod server-sided & add logo.png
 

@@ -18,6 +18,8 @@ public class ConfigScreen extends Screen {
     private Checkbox smoothZoomCheckbox;
     private Checkbox autoAdjustSensitivityCheckbox;
     private Checkbox disableBobbingCheckbox;
+    private Checkbox cinematicCameraCheckbox;
+    private CycleButton<Config.ZoomMode> zoomModeCycle;
 
     public ConfigScreen(Screen parent) {
         super(Component.translatable("betterzoom.config.title"));
@@ -29,7 +31,7 @@ public class ConfigScreen extends Screen {
         int centerX = width / 2;
         int contentWidth = Math.min(250, width - 40);
         int leftX = centerX - contentWidth / 2;
-        int topY = (height / 4) - 6;
+        int topY = (height / 5) - 10;
         int controlHeight = 20;
         int spacing = 26;
         int gap = 6;
@@ -88,7 +90,7 @@ public class ConfigScreen extends Screen {
         holdToZoomCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hold.tooltip")));
         addRenderableWidget(holdToZoomCheckbox);
 
-        CycleButton<Config.ZoomMode> zoomModeCycle = CycleButton.builder(Config.ZoomMode::getDisplayName)
+        zoomModeCycle = CycleButton.builder(Config.ZoomMode::getDisplayName)
                 .withValues(Config.ZoomMode.values())
                 .withInitialValue(Config.ZOOM_MODE.get())
                 .withTooltip(value -> Tooltip.create(Component.translatable("betterzoom.config.zoommode.tooltip")))
@@ -103,22 +105,35 @@ public class ConfigScreen extends Screen {
                 .build();
         disableBobbingCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.disablebobbing.tooltip")));
         addRenderableWidget(disableBobbingCheckbox);
+        y += spacing;
+
+        // row 6: cinematic camera while zooming
+        cinematicCameraCheckbox = Checkbox.builder(Component.translatable("betterzoom.config.cinematic.label"), this.font)
+                .pos(leftX, y)
+                .selected(Config.CINEMATIC_CAMERA.get())
+                .build();
+        cinematicCameraCheckbox.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.cinematic.tooltip")));
+        addRenderableWidget(cinematicCameraCheckbox);
         y += spacing + 12;
 
         // done (save)
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> {
-                    Config.ZOOM_STEP.set(Math.round(zoomIncrementSlider.getActualValue() * 100) / 100.0);
-                    Config.ZOOM_SENSITIVITY_MULTIPLIER.set(Math.round(sensitivitySlider.getActualValue() * 100) / 100.0);
-                    Config.AUTO_ADJUST_SENSITIVITY.set(autoAdjustSensitivityCheckbox.selected());
-                    Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
-                    Config.SMOOTH_ZOOM.set(smoothZoomCheckbox.selected());
-                    Config.ZOOM_MODE.set(zoomModeCycle.getValue());
-                    Config.SMOOTH_EASING_FACTOR.set(Math.round(easingFactorSlider.getActualValue() * 100) / 100.0);
-                    Config.DISABLE_BOBBING_WHILE_ZOOMING.set(disableBobbingCheckbox.selected());
-                    Minecraft.getInstance().setScreen(parent);
-                }).bounds(leftX, y, contentWidth, controlHeight)
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
+                .bounds(leftX, y, contentWidth, controlHeight)
                 .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
                 .build());
+    }
+
+    private void saveSettings() {
+        Config.ZOOM_STEP.set(Math.round(zoomIncrementSlider.getActualValue() * 100) / 100.0);
+        Config.ZOOM_SENSITIVITY_MULTIPLIER.set(Math.round(sensitivitySlider.getActualValue() * 100) / 100.0);
+        Config.AUTO_ADJUST_SENSITIVITY.set(autoAdjustSensitivityCheckbox.selected());
+        Config.HOLD_TO_ZOOM.set(holdToZoomCheckbox.selected());
+        Config.SMOOTH_ZOOM.set(smoothZoomCheckbox.selected());
+        Config.ZOOM_MODE.set(zoomModeCycle.getValue());
+        Config.SMOOTH_EASING_FACTOR.set(Math.round(easingFactorSlider.getActualValue() * 100) / 100.0);
+        Config.DISABLE_BOBBING_WHILE_ZOOMING.set(disableBobbingCheckbox.selected());
+        Config.CINEMATIC_CAMERA.set(cinematicCameraCheckbox.selected());
+        Config.SPEC.save();
     }
 
     @Override
@@ -126,11 +141,12 @@ public class ConfigScreen extends Screen {
         this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         // drawing text after or it will blurred
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 4 - 40, 0xFFFFFF);
+        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, Math.max(8, (this.height / 5) - 38), 0xFFFFFF);
     }
 
     @Override
     public void onClose() {
+        saveSettings();
         Minecraft.getInstance().setScreen(parent);
     }
 

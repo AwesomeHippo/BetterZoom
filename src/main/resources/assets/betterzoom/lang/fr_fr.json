@@ -23,6 +23,8 @@
   "betterzoom.config.zoommode.both": "Molette/Raccourcis",
   "betterzoom.config.smooth_easing.label": "Easing Factor: %s",
   "betterzoom.config.smooth_easing.tooltip": "Controls the speed of smooth zoom transitions (higher is faster).",
-  "betterzoom.config.disablebobbing.label": "Désactive les mouvements de tête lors du zoom",
-  "betterzoom.config.disablebobbing.tooltip": "Désactive les mouvements flottants pendant le zoom pour éviter les tremblements visuels"
+  "betterzoom.config.disablebobbing.label": "Désactiver le bobbing pendant le zoom",
+  "betterzoom.config.disablebobbing.tooltip": "Désactive le bob view pendant le zoom pour éviter le wobble visuel",
+  "betterzoom.config.cinematic.label": "Caméra cinématique pendant le zoom",
+  "betterzoom.config.cinematic.tooltip": "Active le mouvement de caméra cinématique pendant le zoom"
 }

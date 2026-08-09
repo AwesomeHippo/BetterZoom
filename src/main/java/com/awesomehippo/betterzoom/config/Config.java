@@ -21,6 +21,7 @@ public class Config {
     public static final ModConfigSpec.EnumValue<ZoomMode> ZOOM_MODE;
     public static final ModConfigSpec.BooleanValue AUTO_ADJUST_SENSITIVITY;
     public static final ModConfigSpec.BooleanValue DISABLE_BOBBING_WHILE_ZOOMING;
+    public static final ModConfigSpec.BooleanValue CINEMATIC_CAMERA;
 
     public enum ZoomMode {
         WHEEL(Component.translatable("betterzoom.config.zoommode.wheel")),
@@ -49,6 +50,7 @@ public class Config {
         SMOOTH_ZOOM = BUILDER.translation("betterzoom.config.smooth.label").comment("Enable smooth zooming transitions (ease in/out)").define("smoothZoom", true);
         ZOOM_MODE = BUILDER.translation("betterzoom.config.zoommode.label").comment("Zoom adjustment mode").defineEnum("zoomMode", ZoomMode.BOTH);
         DISABLE_BOBBING_WHILE_ZOOMING = BUILDER.translation("betterzoom.config.disablebobbing.label").comment("Disables bobbing/bob view while zooming to prevent visual wobble").define("disableBobbing", true);
+        CINEMATIC_CAMERA = BUILDER.translation("betterzoom.config.cinematic.label").comment("Enable cinematic camera movement while zooming").define("cinematicCamera", false);
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();
