@@ -1,5 +1,16 @@
 # Changelog
 
+### Version 1.20.1-1.20.4 - 2.8.0 (Forge) 08/08/2026
+- Add the "Cinematic Camera while zooming" option
+- Fix an issue with the bobbing option
+- More robust restoring of the settings overall
+- Improve smooth zoom (more consistent across FPS!)
+- Config now saves when pressing escape in the menu
+- Move the config GUI a bit higher
+- Update EN and FR translations
+- Some code refactoring
+- And many small improvements!
+
 ### Version 1.20.1-1.20.4 - 2.7.1 (Forge) 07/02/2026
 - Small check that we're running the mod on the client, update to the latest mods.toml & add logo.png
 
