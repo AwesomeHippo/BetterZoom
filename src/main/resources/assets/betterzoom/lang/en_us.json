@@ -23,8 +23,10 @@
   "betterzoom.config.zoommode.both": "Wheel/Hotkeys",
   "betterzoom.config.smooth_easing.label": "Easing Factor: %s",
   "betterzoom.config.smooth_easing.tooltip": "Easing factor for zoom transitions (higher = faster/less smooth, lower = slower/more smooth)",
-  "betterzoom.config.disablebobbing.label": "Disable Bobbing while zooming",
+  "betterzoom.config.disablebobbing.label": "Disable Bobbing",
   "betterzoom.config.disablebobbing.tooltip": "Disables bob view while zooming to prevent visual wobble",
-  "betterzoom.config.cinematic.label": "Cinematic Camera while zooming",
-  "betterzoom.config.cinematic.tooltip": "Enable cinematic camera movement while zooming"
+  "betterzoom.config.cinematic.label": "Cinematic Camera",
+  "betterzoom.config.cinematic.tooltip": "Enable cinematic camera movement while zooming",
+  "betterzoom.config.toggle.enabled": "Enabled",
+  "betterzoom.config.toggle.disabled": "Disabled"
 }
