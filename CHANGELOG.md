@@ -1,5 +1,11 @@
 # Changelog
 
+### Version 1.21.1 - 2.9.0 (NeoForge) 2026-08-13
+- Zoom increment is now an int slider (1-20) - comptible with old 2.8.0 config
+- GUI updatesss (replace bobbing/cinematic checkboxes to toggle buttons)
+- Update EN and FR translations again (remove "while zooming" after disable bobbing/cinematic camera)
+- Code refactoring & new logo!
+
 ### Version 1.21.1 - 2.8.0 (NeoForge) 2026-08-09
 - Add the "Cinematic Camera while zooming" option
 - Fix an issue with the bobbing option
