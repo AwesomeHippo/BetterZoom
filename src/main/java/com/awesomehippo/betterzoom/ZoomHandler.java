@@ -4,10 +4,12 @@ import com.awesomehippo.betterzoom.config.Config;
 import com.awesomehippo.betterzoom.config.ConfigScreen;
 import com.awesomehippo.betterzoom.keybinds.Keybinds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
+import net.neoforged.neoforge.client.event.RenderGuiEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -30,6 +32,8 @@ public class ZoomHandler {
     private static boolean sensitivityModified = false; // track if we modified the original sensitivity
     private static boolean bobbingModified = false;
     private static boolean cinematicModified = false;
+    private static boolean needsSave = false;
+    private static boolean zoomSoundActive = false;
 
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
@@ -42,6 +46,10 @@ public class ZoomHandler {
 
     private static boolean hasOptionsModified() {
         return sensitivityModified || bobbingModified || cinematicModified;
+    }
+
+    private static boolean shouldModifyOptions() {
+        return isZoomActive() && mc.screen == null;
     }
 
     @SubscribeEvent
@@ -61,6 +69,7 @@ public class ZoomHandler {
                 unzoomStartFactor = smoothedZoomFactor;
                 isUnzoomTransition = true;
             }
+            updateZoomSound();
             prevIsZooming = isZooming;
         } else {
             if (Keybinds.CONFIG_KEY.consumeClick()) {
@@ -93,6 +102,7 @@ public class ZoomHandler {
                 unzoomStartFactor = smoothedZoomFactor;
                 isUnzoomTransition = true;
             }
+            updateZoomSound();
             prevIsZooming = isZooming;
         }
 
@@ -109,7 +119,7 @@ public class ZoomHandler {
         }
 
         // refresh the options correctly
-        if (!isZoomActive() && !hasOptionsModified() && mc.options != null) {
+        if (!hasOptionsModified() && mc.options != null) {
             float actual = mc.options.sensitivity().get().floatValue();
             if (Math.abs(actual - normalSensitivity) > 1e-6f) {
                 normalSensitivity = actual;
@@ -165,6 +175,19 @@ public class ZoomHandler {
         }
     }
 
+    private static void updateZoomSound() {
+        if (mc.player == null || isZooming == prevIsZooming) return;
+        if (isZooming) {
+            if (!Config.ZOOM_SOUND.get()) return;
+            mc.player.playSound(SoundEvents.SPYGLASS_USE, 1.0F, 1.0F);
+            zoomSoundActive = true;
+        } else if (zoomSoundActive) {
+            zoomSoundActive = false;
+            if (!Config.ZOOM_SOUND.get()) return;
+            mc.player.playSound(SoundEvents.SPYGLASS_STOP_USING, 1.0F, 1.0F);
+        }
+    }
+
     private static void updateBobbing() {
         if (mc.options == null) return;
 
@@ -178,11 +201,12 @@ public class ZoomHandler {
             return;
         }
 
-        if (isZoomActive()) {
+        if (shouldModifyOptions()) {
             if (mc.options.bobView().get()) {
                 normalBobView = true;
                 mc.options.bobView().set(false);
                 bobbingModified = true;
+                needsSave = true;
             }
         } else if (bobbingModified) {
             if (mc.options.bobView().get() != normalBobView) {
@@ -203,7 +227,7 @@ public class ZoomHandler {
             return;
         }
 
-        if (isZoomActive()) {
+        if (shouldModifyOptions()) {
             if (!mc.options.smoothCamera) {
                 normalSmoothCamera = false;
                 mc.options.smoothCamera = true;
@@ -218,7 +242,7 @@ public class ZoomHandler {
     private static void updateSensitivity() {
         if (mc.options == null) return;
 
-        if (isZoomActive()) {
+        if (shouldModifyOptions()) {
             float mult;
             if (Config.AUTO_ADJUST_SENSITIVITY.get()) {
                 mult = smoothedZoomFactor;
@@ -245,6 +269,7 @@ public class ZoomHandler {
             // check if it's different
             if (Math.abs(mc.options.sensitivity().get().floatValue() - targetSensitivity) > 1e-6f) {
                 mc.options.sensitivity().set((double) targetSensitivity);
+                needsSave = true;
             }
             sensitivityModified = true;
         } else if (sensitivityModified) {
@@ -260,7 +285,7 @@ public class ZoomHandler {
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
         if (isZooming && (Config.ZOOM_MODE.get() == Config.ZoomMode.WHEEL || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
             float normalFOV = mc.options.fov().get().floatValue();
-            zoomFOV -= (float) (event.getScrollDeltaY() * Config.ZOOM_STEP.get());
+            zoomFOV -= (float) (Math.signum(event.getScrollDeltaY()) * Config.ZOOM_STEP.get());
             zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
 
             // cancel event in order to prevent the hotbar slot from changing when wheel zooming
@@ -268,30 +293,36 @@ public class ZoomHandler {
         }
     }
 
+    @SubscribeEvent
+    public static void onRenderGui(RenderGuiEvent.Pre event) {
+        if (isZooming && mc.screen == null && Config.HIDE_GUI.get()) {
+            event.setCanceled(true);
+        }
+    }
+
     // restore correctly the changed stuff
     @SubscribeEvent
     public static void onGameShuttingDown(GameShuttingDownEvent event) {
-        resetZoomState(true);
+        resetZoomState();
     }
 
     @SubscribeEvent
     public static void onLogout(ClientPlayerNetworkEvent.LoggingOut event) {
-        resetZoomState(true);
+        resetZoomState();
     }
 
-    private static void resetZoomState(boolean save) {
+    private static void resetZoomState() {
         isZooming = false;
         isUnzoomTransition = false;
         prevIsZooming = false;
+        zoomSoundActive = false;
         smoothedZoomFactor = 1.0f;
-        restoreModifiedOptions(save);
+        restoreModifiedOptions();
     }
 
     // restore the actually modified options by us
-    private static void restoreModifiedOptions(boolean save) {
+    private static void restoreModifiedOptions() {
         if (mc.options == null) return;
-
-        boolean modified = sensitivityModified || bobbingModified || cinematicModified;
 
         if (sensitivityModified) {
             if (Math.abs(mc.options.sensitivity().get().floatValue() - normalSensitivity) > 1e-6f) {
@@ -309,8 +340,9 @@ public class ZoomHandler {
             mc.options.smoothCamera = normalSmoothCamera;
             cinematicModified = false;
         }
-        if (save && modified) {
+        if (needsSave) {
             mc.options.save();
+            needsSave = false;
         }
     }
 }

@@ -20,6 +20,8 @@ public class ConfigScreen extends Screen {
     private Checkbox autoAdjustSensitivityCheckbox;
     private ToggleOptionButton disableBobbingButton;
     private ToggleOptionButton cinematicCameraButton;
+    private ToggleOptionButton zoomSoundButton;
+    private ToggleOptionButton hideGuiButton;
     private CycleButton<Config.ZoomMode> zoomModeCycle;
 
     public ConfigScreen(Screen parent) {
@@ -30,7 +32,7 @@ public class ConfigScreen extends Screen {
     @Override
     protected void init() {
         int centerX = width / 2;
-        int contentWidth = Math.min(250, width - 40);
+        int contentWidth = Math.min(310, width - 40);
         int leftX = centerX - contentWidth / 2;
         int topY = (height / 5) - 10;
         int controlHeight = 20;
@@ -39,18 +41,16 @@ public class ConfigScreen extends Screen {
         int y = topY;
 
         int leftWidth = (contentWidth - gap) * 2 / 3;
+        int halfWidth = (contentWidth - gap) / 2;
 
         // row 1: zoom increment step slider
-        incrementSlider = new IntSlider(leftX, y, contentWidth, controlHeight,
-                Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get());
+        incrementSlider = new IntSlider(leftX, y, contentWidth, controlHeight, Config.MIN_ZOOM_INCREMENT, Config.MAX_ZOOM_INCREMENT, Config.ZOOM_STEP.get());
         incrementSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomstep.tooltip")));
         addRenderableWidget(incrementSlider);
         y += spacing;
 
         // row 2: sensitivity & auto adjust checkbox
-        sensitivitySlider = new DecimalSlider(leftX, y, leftWidth, controlHeight,
-                Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().doubleValue(),
-                "betterzoom.config.sensitivity.label");
+        sensitivitySlider = new DecimalSlider(leftX, y, leftWidth, controlHeight, Config.MIN_SENSITIVITY, Config.MAX_SENSITIVITY, Config.ZOOM_SENSITIVITY_MULTIPLIER.get().doubleValue(), "betterzoom.config.sensitivity.label");
         sensitivitySlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.sensitivity.tooltip")));
         addRenderableWidget(sensitivitySlider);
 
@@ -66,9 +66,8 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(autoAdjustSensitivityCheckbox);
         y += spacing;
 
-        // row 3: easing factor & smooth transition checkbox
-        easingFactorSlider = new DecimalSlider(leftX, y, leftWidth, controlHeight, Config.MIN_SMOOTH_EASE, Config.MAX_SMOOTH_EASE,
-                Config.SMOOTH_EASING_FACTOR.get().doubleValue(), "betterzoom.config.smooth_easing.label");
+        // row 3: transition speed & smooth zoom checkbox
+        easingFactorSlider = new DecimalSlider(leftX, y, leftWidth, controlHeight, Config.MIN_SMOOTH_EASE, Config.MAX_SMOOTH_EASE, Config.SMOOTH_EASING_FACTOR.get().doubleValue(), "betterzoom.config.smooth_easing.label");
         easingFactorSlider.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.smooth_easing.tooltip")));
         addRenderableWidget(easingFactorSlider);
 
@@ -100,27 +99,28 @@ public class ConfigScreen extends Screen {
         addRenderableWidget(zoomModeCycle);
         y += spacing;
 
-        // row 5: disable bobbing toggle button
-        disableBobbingButton = new ToggleOptionButton(leftX, y, contentWidth, controlHeight,
-                Component.translatable("betterzoom.config.disablebobbing.label"),
-                Config.DISABLE_BOBBING_WHILE_ZOOMING.get());
+        // row 5: disable bobbing & zoom sound toggle buttons
+        disableBobbingButton = new ToggleOptionButton(leftX, y, halfWidth, controlHeight, Component.translatable("betterzoom.config.disablebobbing.label"), Config.DISABLE_BOBBING_WHILE_ZOOMING.get());
         disableBobbingButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.disablebobbing.tooltip")));
         addRenderableWidget(disableBobbingButton);
+
+        zoomSoundButton = new ToggleOptionButton(leftX + contentWidth - halfWidth, y, halfWidth, controlHeight, Component.translatable("betterzoom.config.zoomsound.label"), Config.ZOOM_SOUND.get());
+        zoomSoundButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.zoomsound.tooltip")));
+        addRenderableWidget(zoomSoundButton);
         y += spacing;
 
-        // row 6: cinematic camera toggle button
-        cinematicCameraButton = new ToggleOptionButton(leftX, y, contentWidth, controlHeight,
-                Component.translatable("betterzoom.config.cinematic.label"),
-                Config.CINEMATIC_CAMERA.get());
+        // row 6: cinematic camera & hide gui toggle buttons
+        cinematicCameraButton = new ToggleOptionButton(leftX, y, halfWidth, controlHeight, Component.translatable("betterzoom.config.cinematic.label"), Config.CINEMATIC_CAMERA.get());
         cinematicCameraButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.cinematic.tooltip")));
         addRenderableWidget(cinematicCameraButton);
+
+        hideGuiButton = new ToggleOptionButton(leftX + contentWidth - halfWidth, y, halfWidth, controlHeight, Component.translatable("betterzoom.config.hidegui.label"), Config.HIDE_GUI.get());
+        hideGuiButton.setTooltip(Tooltip.create(Component.translatable("betterzoom.config.hidegui.tooltip")));
+        addRenderableWidget(hideGuiButton);
         y += spacing + 12;
 
         // done (save)
-        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose())
-                .bounds(leftX, y, contentWidth, controlHeight)
-                .tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip")))
-                .build());
+        addRenderableWidget(Button.builder(Component.translatable("gui.done"), button -> onClose()).bounds(leftX, y, contentWidth, controlHeight).tooltip(Tooltip.create(Component.translatable("betterzoom.config.save.tooltip"))).build());
     }
 
     private void saveSettings() {
@@ -133,12 +133,13 @@ public class ConfigScreen extends Screen {
         Config.SMOOTH_EASING_FACTOR.set(Math.round(easingFactorSlider.getActualValue() * 100) / 100.0);
         Config.DISABLE_BOBBING_WHILE_ZOOMING.set(disableBobbingButton.selected());
         Config.CINEMATIC_CAMERA.set(cinematicCameraButton.selected());
+        Config.ZOOM_SOUND.set(zoomSoundButton.selected());
+        Config.HIDE_GUI.set(hideGuiButton.selected());
         Config.SPEC.save();
     }
 
     @Override
     public void render(@NotNull GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics, mouseX, mouseY, partialTicks);
         super.render(guiGraphics, mouseX, mouseY, partialTicks);
         // drawing text after or it will blurred
         guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, Math.max(8, (this.height / 5) - 38), 0xFFFFFF);

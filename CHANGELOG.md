@@ -1,5 +1,16 @@
 # Changelog
 
+### Version 1.21.1 - 3.0.0 (NeoForge) 2026-10-30
+- New "Zoom Sound" option, on by default
+- New "Hide GUI" option, on by default
+- Rename "easing factor" to "transition speed", "mouse sensitivity" to "zoom sensitivity" and "toggle zoom" to "zoom"
+- Transition Speed can now go up to 0.25 and default is 0.20
+- Small improvements to the config screen
+- Fix a problem with settings restoration
+- Small fix for scroll wheel zoom
+- Update neo_version_range to NeoForge 21.1.181 or newer (crashed on older versions)
+- Update EN and FR translations
+
 ### Version 1.21.1 - 2.9.0 (NeoForge) 2026-08-13
 - Zoom increment is now an int slider (1-20) - comptible with old 2.8.0 config
 - GUI updatesss (replace bobbing/cinematic checkboxes to toggle buttons)

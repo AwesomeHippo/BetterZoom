@@ -11,7 +11,7 @@ public class Config {
     public static final double MIN_SENSITIVITY = 0.01;
     public static final double MAX_SENSITIVITY = 1.0;
     public static final double MIN_SMOOTH_EASE = 0.05;
-    public static final double MAX_SMOOTH_EASE = 0.2;
+    public static final double MAX_SMOOTH_EASE = 0.25;
 
     public static final ModConfigSpec.IntValue ZOOM_STEP;
     public static final ModConfigSpec.DoubleValue ZOOM_SENSITIVITY_MULTIPLIER;
@@ -22,6 +22,8 @@ public class Config {
     public static final ModConfigSpec.BooleanValue AUTO_ADJUST_SENSITIVITY;
     public static final ModConfigSpec.BooleanValue DISABLE_BOBBING_WHILE_ZOOMING;
     public static final ModConfigSpec.BooleanValue CINEMATIC_CAMERA;
+    public static final ModConfigSpec.BooleanValue ZOOM_SOUND;
+    public static final ModConfigSpec.BooleanValue HIDE_GUI;
 
     public enum ZoomMode {
         WHEEL(Component.translatable("betterzoom.config.zoommode.wheel")),
@@ -46,11 +48,13 @@ public class Config {
         ZOOM_SENSITIVITY_MULTIPLIER = BUILDER.translation("betterzoom.config.sensitivity.label").comment("Mouse sensitivity multiplier while zooming (lower values make it less sensitive)").defineInRange("zoomSensitivity", 0.01, MIN_SENSITIVITY, MAX_SENSITIVITY);
         AUTO_ADJUST_SENSITIVITY = BUILDER.translation("betterzoom.config.autosensitivity.label").comment("Adjusts mouse sensitivity based on the zoom level").define("autoAdjustSensitivity", true);
         HOLD_TO_ZOOM = BUILDER.translation("betterzoom.config.hold.label").comment("Require holding the zoom key").define("holdToZoom", true);
-        SMOOTH_EASING_FACTOR = BUILDER.translation("betterzoom.config.transition_speed.label").comment("Easing factor for zoom transitions (higher = faster/less smooth, lower = slower/more smooth)").defineInRange("smoothEasingFactor", 0.15, MIN_SMOOTH_EASE, MAX_SMOOTH_EASE);
+        SMOOTH_EASING_FACTOR = BUILDER.translation("betterzoom.config.smooth_easing.label").comment("Speed of zoom transitions (higher = faster/less smooth, lower = slower/more smooth)").defineInRange("smoothEasingFactor", 0.2, MIN_SMOOTH_EASE, MAX_SMOOTH_EASE);
         SMOOTH_ZOOM = BUILDER.translation("betterzoom.config.smooth.label").comment("Enable smooth zooming transitions (ease in/out)").define("smoothZoom", true);
         ZOOM_MODE = BUILDER.translation("betterzoom.config.zoommode.label").comment("Zoom adjustment mode").defineEnum("zoomMode", ZoomMode.BOTH);
         DISABLE_BOBBING_WHILE_ZOOMING = BUILDER.translation("betterzoom.config.disablebobbing.label").comment("Disables bobbing/bob view while zooming to prevent visual wobble").define("disableBobbing", true);
         CINEMATIC_CAMERA = BUILDER.translation("betterzoom.config.cinematic.label").comment("Enable cinematic camera movement while zooming").define("cinematicCamera", false);
+        ZOOM_SOUND = BUILDER.translation("betterzoom.config.zoomsound.label").comment("Play the spyglass sound when zooming/unzooming").define("zoomSound", true);
+        HIDE_GUI = BUILDER.translation("betterzoom.config.hidegui.label").comment("Hide the GUI while zooming").define("hideGui", true);
     }
 
     public static final ModConfigSpec SPEC = BUILDER.build();
