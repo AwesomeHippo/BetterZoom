@@ -295,6 +295,8 @@ public class ConfigScreen extends Screen {
         InputConstants.Key key = InputConstants.getKey(keyCode, scanCode);
         if (Keybinds.CONFIG_KEY.isActiveAndMatches(key)) {
             this.onClose();
+            // don't zoom after clsoing the config screen
+            Keybinds.ZOOM_KEY.setDown(false);
             return true;
         }
         if (Keybinds.ZOOM_KEY.isActiveAndMatches(key)) {

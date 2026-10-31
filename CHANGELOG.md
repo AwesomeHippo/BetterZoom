@@ -1,5 +1,8 @@
 # Changelog
 
+### Version 1.20.1 - 3.1.1 (Forge) 2026-10-31
+- Fix zooming after closing the config with Alt+C
+
 ### Version 1.20.1 - 3.1.0 (Forge) 2026-10-31
 - Complete rework of the config screen
 - New "Hide Hand" option, off by default
