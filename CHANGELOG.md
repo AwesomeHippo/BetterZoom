@@ -1,5 +1,15 @@
 # Changelog
 
+### Version 1.20.1 - 3.1.0 (Forge) 2026-10-31
+- Complete rework of the config screen
+- New "Hide Hand" option, off by default
+- New "Cinematic Bars" option, off by default
+- New "Zoom Level" option, off by default
+- New "Settings Hint" option, on by default, and itshows how to open the config on the first zoom of each join
+- Default key to open the config is now Alt+C instead of V
+- Small fix when resizing the window in config screen
+- Update EN and FR translations
+
 ### Version 1.20.1 - 3.0.0 (Forge) 2026-10-30
 - New "Zoom Sound" option, on by default
 - New "Hide GUI" option, on by default

@@ -1,9 +1,12 @@
 package com.awesomehippo.betterzoom.keybinds;
 
 import com.awesomehippo.betterzoom.BetterZoom;
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.KeyMapping;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
+import net.minecraftforge.client.settings.KeyConflictContext;
+import net.minecraftforge.client.settings.KeyModifier;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
@@ -18,11 +21,7 @@ public class Keybinds {
             CATEGORY
     );
     // keybind to open config ingame
-    public static final KeyMapping CONFIG_KEY = new KeyMapping(
-            "key.betterzoom.config",
-            GLFW.GLFW_KEY_V,
-            CATEGORY
-    );
+    public static final KeyMapping CONFIG_KEY = new KeyMapping("key.betterzoom.config", KeyConflictContext.UNIVERSAL, KeyModifier.ALT, InputConstants.Type.KEYSYM, GLFW.GLFW_KEY_C, CATEGORY);
     // keybinds to zoom/dezeoom
     public static final KeyMapping ZOOM_IN_KEY = new KeyMapping(
             "key.betterzoom.zoom_in",

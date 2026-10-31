@@ -24,6 +24,10 @@ public class Config {
     public static final ForgeConfigSpec.BooleanValue CINEMATIC_CAMERA;
     public static final ForgeConfigSpec.BooleanValue ZOOM_SOUND;
     public static final ForgeConfigSpec.BooleanValue HIDE_GUI;
+    public static final ForgeConfigSpec.BooleanValue HIDE_HAND;
+    public static final ForgeConfigSpec.BooleanValue CINEMATIC_BARS;
+    public static final ForgeConfigSpec.BooleanValue ZOOM_LEVEL;
+    public static final ForgeConfigSpec.BooleanValue SETTINGS_HINT;
 
     public enum ZoomMode {
         WHEEL(Component.translatable("betterzoom.config.zoommode.wheel")),
@@ -55,6 +59,10 @@ public class Config {
         CINEMATIC_CAMERA = BUILDER.translation("betterzoom.config.cinematic.label").comment("Enable cinematic camera movement while zooming").define("cinematicCamera", false);
         ZOOM_SOUND = BUILDER.translation("betterzoom.config.zoomsound.label").comment("Play the spyglass sound when zooming/unzooming").define("zoomSound", true);
         HIDE_GUI = BUILDER.translation("betterzoom.config.hidegui.label").comment("Hide the GUI while zooming").define("hideGui", true);
+        HIDE_HAND = BUILDER.translation("betterzoom.config.hidehand.label").comment("Hide your hand while zooming").define("hideHand", false);
+        CINEMATIC_BARS = BUILDER.translation("betterzoom.config.cinematicbars.label").comment("Show black bars at the top and bottom while zooming").define("cinematicBars", false);
+        ZOOM_LEVEL = BUILDER.translation("betterzoom.config.zoomlevel.label").comment("Show the zoom level (like x2.5) while zooming").define("zoomLevel", false);
+        SETTINGS_HINT = BUILDER.translation("betterzoom.config.settingshint.label").comment("Show how to open these settings on the first zoom of each join").define("settingsHint", true);
     }
 
     public static final ForgeConfigSpec SPEC = BUILDER.build();
