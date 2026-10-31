@@ -4,12 +4,15 @@ import com.awesomehippo.betterzoom.config.Config;
 import com.awesomehippo.betterzoom.config.ConfigScreen;
 import com.awesomehippo.betterzoom.keybinds.Keybinds;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.neoforge.client.event.ClientPlayerNetworkEvent;
 import net.neoforged.neoforge.client.event.ClientTickEvent;
 import net.neoforged.neoforge.client.event.InputEvent;
 import net.neoforged.neoforge.client.event.RenderGuiEvent;
+import net.neoforged.neoforge.client.event.RenderHandEvent;
 import net.neoforged.neoforge.client.event.ViewportEvent;
 import net.neoforged.neoforge.event.GameShuttingDownEvent;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -34,6 +37,9 @@ public class ZoomHandler {
     private static boolean cinematicModified = false;
     private static boolean needsSave = false;
     private static boolean zoomSoundActive = false;
+    private static float barProgress = 0.0f;
+    private static boolean hintShown = false;
+    private static boolean hintVisible = false;
 
     // check ifs using any item (which sould cover vanilla spyglass and modded items)
     private static boolean isUsingItem() {
@@ -62,7 +68,9 @@ public class ZoomHandler {
         }
 
         if (mc.screen != null) {
-            if (Config.HOLD_TO_ZOOM.get() && isZooming) {
+            if (mc.screen instanceof ConfigScreen configScreen) {
+                isZooming = configScreen.isPreviewing();
+            } else if (Config.HOLD_TO_ZOOM.get() && isZooming) {
                 isZooming = false;
             }
             if (prevIsZooming && !isZooming && Config.SMOOTH_ZOOM.get()) {
@@ -102,8 +110,17 @@ public class ZoomHandler {
                 unzoomStartFactor = smoothedZoomFactor;
                 isUnzoomTransition = true;
             }
+            // on first zoom of each join, notice where is the config screen
+            if (!prevIsZooming && isZooming && !hintShown && Config.SETTINGS_HINT.get() && !Keybinds.CONFIG_KEY.isUnbound()) {
+                hintShown = true;
+                hintVisible = true;
+            }
             updateZoomSound();
             prevIsZooming = isZooming;
+        }
+
+        if (!isZooming) {
+            hintVisible = false;
         }
 
         // checking if unzoom transition is complete
@@ -283,19 +300,63 @@ public class ZoomHandler {
     // mouse wheel zooming!
     @SubscribeEvent
     public static void onMouseScroll(InputEvent.MouseScrollingEvent event) {
-        if (isZooming && (Config.ZOOM_MODE.get() == Config.ZoomMode.WHEEL || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
-            float normalFOV = mc.options.fov().get().floatValue();
-            zoomFOV -= (float) (Math.signum(event.getScrollDeltaY()) * Config.ZOOM_STEP.get());
-            zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
-
+        if (scrollZoom(event.getScrollDeltaY())) {
             // cancel event in order to prevent the hotbar slot from changing when wheel zooming
             event.setCanceled(true);
         }
     }
 
+    public static boolean scrollZoom(double delta) {
+        if (isZooming && (Config.ZOOM_MODE.get() == Config.ZoomMode.WHEEL || Config.ZOOM_MODE.get() == Config.ZoomMode.BOTH)) {
+            float normalFOV = mc.options.fov().get().floatValue();
+            zoomFOV -= (float) (Math.signum(delta) * Config.ZOOM_STEP.get());
+            zoomFOV = Math.max(1.0f, Math.min(normalFOV, zoomFOV)); // prevent strange dezooming
+            return true;
+        }
+        return false;
+    }
+
     @SubscribeEvent
     public static void onRenderGui(RenderGuiEvent.Pre event) {
-        if (isZooming && mc.screen == null && Config.HIDE_GUI.get()) {
+        GuiGraphics guiGraphics = event.getGuiGraphics();
+        int width = guiGraphics.guiWidth();
+        int height = guiGraphics.guiHeight();
+
+        float barTarget = isZooming && Config.CINEMATIC_BARS.get() ? 1.0f : 0.0f;
+        if (barTarget > 0.0f || barProgress > 0.0f) {
+            if (Config.SMOOTH_ZOOM.get()) {
+                float easing = Config.SMOOTH_EASING_FACTOR.get().floatValue();
+                barProgress += (barTarget - barProgress) * (1.0f - (float) Math.pow(1.0f - easing, Math.max(mc.getTimer().getGameTimeDeltaTicks(), 0f)));
+            } else {
+                barProgress = barTarget;
+            }
+            if (barProgress < 0.001f) {
+                barProgress = 0.0f;
+            }
+            int barHeight = (int) (Math.max(0.0f, (height - width / 2.39f) / 2.0f) * barProgress);
+            guiGraphics.fill(0, 0, width, barHeight, 0xFF000000);
+            guiGraphics.fill(0, height - barHeight, width, height, 0xFF000000);
+        }
+
+        if (Config.ZOOM_LEVEL.get() && isZoomActive() && smoothedZoomFactor < 0.999f) {
+            float level = 1.0f / smoothedZoomFactor;
+            guiGraphics.drawCenteredString(mc.font, String.format(level < 10.0f ? "x%.1f" : "x%.0f", level), width / 2, 10, 0xFFFFFF);
+        }
+
+        boolean hideHud = isZooming && Config.HIDE_GUI.get() && (mc.screen == null || mc.screen instanceof ConfigScreen);
+
+        if (hintVisible) {
+            guiGraphics.drawCenteredString(mc.font, Component.translatable("betterzoom.hint.settings", Keybinds.CONFIG_KEY.getTranslatedKeyMessage()), width / 2, hideHud ? height - 20 : height - 72, 0xFFFFFF);
+        }
+
+        if (hideHud) {
+            event.setCanceled(true);
+        }
+    }
+
+    @SubscribeEvent
+    public static void onRenderHand(RenderHandEvent event) {
+        if (isZoomActive() && Config.HIDE_HAND.get()) {
             event.setCanceled(true);
         }
     }
@@ -317,6 +378,9 @@ public class ZoomHandler {
         prevIsZooming = false;
         zoomSoundActive = false;
         smoothedZoomFactor = 1.0f;
+        barProgress = 0.0f;
+        hintShown = false;
+        hintVisible = false;
         restoreModifiedOptions();
     }
 
