@@ -1,0 +1,42 @@
+# See https://docs.minecraftforge.net/en/1.21.x/gettingstarted/modfiles/#modstoml
+# There are lots of things you can do with the mods.toml, and not all fields are included with this MDK
+# References: https://github.com/MinecraftForge/MDKExamples
+
+modLoader="javafml"
+loaderVersion="[52,)"
+license="MIT"
+#issueTrackerURL="https://github.com/MyOrganization/MyMod/" #optional
+clientSideOnly=true #optional, default=false
+
+[[mods]]
+modId="betterzoom"
+version="3.1.1"
+displayName="Better Zoom"
+#updateJSONURL="https://example.com/updates.json" #optional
+#displayURL="https://example.com/" #optional
+logoFile="logo.png" #optional
+#credits="" #optional
+authors="awesomehippo" #optional
+displayTest="IGNORE_ALL_VERSION" #optional, default=MATCH_VERSION when not clientSideOnly, else IGNORE_ALL_VERSION
+
+# Access Transformers
+# Optional, if not specified Forge will attempt to find the default META-INF/accesstransformer.cfg and silently continue if not found. May default to an empty list in a future MC.
+# If you specify AT path strings in this list, Forge will attempt to load each of them and throw errors for any that aren't found.
+# Specifying an empty list when your mod has no ATs is recommended to opt-out of the default for slightly better loading performance.
+#accessTransformers = []
+
+description='''Smoothly zoom with wheel and hotkeys as much as you want, in a simple way with customizations'''
+
+[[dependencies.betterzoom]] #recommended
+    modId="forge"
+    mandatory=true
+    versionRange="[52.1.2,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.betterzoom]] #recommended
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.21.1]"
+    ordering="NONE"
+    side="BOTH"

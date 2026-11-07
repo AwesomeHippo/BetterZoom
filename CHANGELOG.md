@@ -1,0 +1,98 @@
+# Changelog
+
+### Version 1.21.1 - 3.1.1 (Forge) 2026-11-08
+- Initial port from forge 1.20.1 (v3.1.1) to forge 1.21.1!
+
+### Version 1.20.1 - 3.1.1 (Forge) 2026-10-31
+- Fix zooming after closing the config with Alt+C
+
+### Version 1.20.1 - 3.1.0 (Forge) 2026-10-31
+- Complete rework of the config screen
+- New "Hide Hand" option, off by default
+- New "Cinematic Bars" option, off by default
+- New "Zoom Level" option, off by default
+- New "Settings Hint" option, on by default, and itshows how to open the config on the first zoom of each join
+- Default key to open the config is now Alt+C instead of V
+- Small fix when resizing the window in config screen
+- Update EN and FR translations
+
+### Version 1.20.1 - 3.0.0 (Forge) 2026-10-30
+- New "Zoom Sound" option, on by default
+- New "Hide GUI" option, on by default
+- Rename "easing factor" to "transition speed", "mouse sensitivity" to "zoom sensitivity" and "toggle zoom" to "zoom"
+- Transition Speed can now go up to 0.25 and default is 0.20
+- Small improvements to the config screen
+- Fix a problem with settings restoration
+- Small fix for scroll wheel zoom
+- Update version_range to only support 1.20.1 (not completely compatible with 1.20.2 to 1.20.4...)
+- Update EN and FR translations
+
+### Version 1.20.1-1.20.4 - 2.9.0 (Forge) 2026-08-13
+- Zoom increment is now an int slider (1-20) - comptible with old 2.8.0 config
+- GUI updatesss (replace bobbing/cinematic checkboxes to toggle buttons)
+- Update EN and FR translations again (remove "while zooming" after disable bobbing/cinematic camera)
+- Update version_range to only support 1.20.1-1.20.4
+- Code refactoring & new logo!
+
+### Version 1.20.1-1.20.4 - 2.8.0 (Forge) 2026-08-08
+- Add the "Cinematic Camera while zooming" option
+- Fix an issue with the bobbing option
+- More robust restoring of the settings overall
+- Improve smooth zoom (more consistent across FPS!)
+- Config now saves when pressing escape in the menu
+- Move the config GUI a bit higher
+- Update EN and FR translations
+- Some code refactoring
+- And many small improvements!
+
+### Version 1.20.1-1.20.4 - 2.7.1 (Forge) 2026-07-02
+- Small check that we're running the mod on the client, update to the latest mods.toml & add logo.png
+
+### Version 1.20.1-1.20.4 - 2.7.0 (Forge) 2025-09-03
+- Fix typo and hotfix sensitivity / bobbing options not resetting correctly
+
+### Version 1.20.1-1.20.4 - 2.6.0 (Forge) 2025-08-21
+- Completely update and improve the Config screen
+- Remove "allow hotbar scrolling" option
+- Add smooth easing factor option
+- Add "disable bobbing" option
+- Fix issues with very low base FOV
+- Update translations
+- Improvements overall
+
+### Version 1.20.1-1.20.4 - 2.5.0 (Forge) 2025-08-15
+- Fix special case issue with keybinds and refactor key handling..
+- Shorten french translations
+- Small improvements overall and allow holding the zoom in/out keys
+- Safer/better sensitivity restore on leaving
+- Fix issues with FOV
+
+### Version 1.20.1-1.20.4 - 2.4.1 (Forge) 2025-08-14
+- Prevent zooming and opening the configuration GUI when being in inventory/gui screens
+
+### Version 1.20.1-1.20.4 - 2.4.0 (Forge) 2025-08-13
+- Add an "Auto adjust" feature to automatically adjust mouse sensitivity
+- Improve more config GUI layout
+- Fix some typos and small issues
+
+### Version 1.20.1-1.20.4 - 2.3.0 (Forge) 2025-08-11
+- Add 2 new options: "Zoom mode" and "Allow hotbar scrolling while zooming"
+- Improve and update config GUI layout
+- Update and improve translations again
+
+### Version 1.20.1-1.20.4 - 2.2.0 (Forge) 2025-08-02
+- Improve config system
+- Update translations
+- Improvements on config GUI
+
+### Version 1.20.1-1.20.4 - 2.1.0 (Forge) 2025-07-31
+- Improve smooth transition when zooming, small improvements
+- Add an option to toggle smooth transition (smooth mode).
+- Better translations for EN and FR.
+
+### Version 1.20.1-1.20.4 - 2.0.0 (Forge) 2025-07-30
+- Drastically improve config screen, more improvements overall on the zooming feature, more setttings.
+- Add translations for EN and FR.
+
+### Version 1.20.1-1.20.4 - 1.1.0 (Forge) 2025-05-07
+- Add more keybinds, better config screen, refactor
